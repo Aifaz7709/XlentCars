@@ -1,0 +1,29 @@
+# --- Dependencies ---
+# This ignores node_modules in BOTH 'server' and 'xlentfrontend'
+node_modules/
+.pnp
+.pnp.js
+
+# --- Project Specifics ---
+# Ignores the .xlent folder inside the frontend
+/.xlent/
+
+# --- Testing & Production ---
+# Ignores build/dist folders in any directory
+build/
+dist/
+coverage/
+
+# --- Environment Secrets (CRITICAL) ---
+# This protects your GHL API keys and database credentials
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Misc & Logs ---
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
