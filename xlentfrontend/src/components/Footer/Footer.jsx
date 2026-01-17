@@ -15,7 +15,7 @@ const Footer = () => {
               <strong>Xlentcar Rentals</strong><br/>
              Chennai, Tamil Nadu<br/>
             <br/>
-              <abbr title="Phone">Contact:-  </abbr> (+91) 86828 ***** 
+              <abbr>Support </abbr> (+91) 8682844516 
             </address>
           </div>
 
@@ -23,7 +23,7 @@ const Footer = () => {
         </div>
 
         <div className="container text-center py-3 small" style={{ opacity: '0.7' }}>
-          © {new Date().getFullYear()} Xlentcar — Your Journey, Your Way.
+          © 2025 Xlentcar — Your Journey, Your Way.
         </div>
       </div>
     </footer>

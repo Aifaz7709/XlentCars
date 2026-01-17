@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 
-const UserData = () => {
-  const [showForm, setShowForm] = useState(false);
+const UserData = ({onClose}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
    const [formData, setFormData] = useState({
       name: "",
@@ -22,9 +21,6 @@ const handleInputChange = (e) => {
 
 
 
-
-
-
  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -32,18 +28,12 @@ const handleInputChange = (e) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    console.log("Form submitted:", formData);
     setIsSubmitting(false);
     setFormData({ name: "", phone: "" });
-    setShowForm(false);
     
     // Show success notification
     showNotification("Thank you! We'll contact you soon.");
   };
-
-
-
-
 
 
   const showNotification = (message) => {
@@ -68,21 +58,10 @@ const handleInputChange = (e) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
   return (
     <div>
 
-        <div className="modern-modal-overlay" onClick={() => setShowForm(false)}>
+        <div className="modern-modal-overlay" onClick={onClose}>
           <div className="modern-modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modern-modal-content">
               {/* Animated Background */}
@@ -99,7 +78,7 @@ const handleInputChange = (e) => {
              
                 <button 
                   className="modal-close-btn"
-                  onClick={() => setShowForm(false)}
+                  onClick={onClose}
                 >
                   <span style={{paddingBottom: '5px'}}>×</span>
                 </button>

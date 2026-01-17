@@ -6,10 +6,6 @@ const Testimonials = () => {
 
   const [showForm, setShowForm] = useState(false);
 
-
-
-console.log(showForm,'showFormshowForm');
-
   return (
 <>
 
@@ -163,8 +159,9 @@ console.log(showForm,'showFormshowForm');
       </div>
     </section>
 
-{showForm && (
-<UserData/> )}
+    {showForm && (
+  <UserData onClose={() => setShowForm(false)} />
+)}
 
 
     </>

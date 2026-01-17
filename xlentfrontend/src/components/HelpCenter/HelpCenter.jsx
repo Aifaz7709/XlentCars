@@ -106,7 +106,7 @@ const HelpCenter = () => {
     {
       title: "Call Support",
       description: "24/7 Customer Support",
-      details: "+91 86828 *****",
+      details: "+91 8682844516",
       icon: <PhoneCall size={28} className="text-primary" />,
       action: "Call Now",
       color: "bg-primary bg-opacity-10",
@@ -218,9 +218,15 @@ const HelpCenter = () => {
                         {option.description}
                       </p>
                       <p className="fw-bold text-primary mb-4">{option.details}</p>
-                      <button className={`btn ${option.buttonClass} btn-sm w-100`}>
-                        {option.action}
-                      </button>
+                      {option.title === "Call Support" ? (
+                        <a href="tel:+918682844516" className={`btn ${option.buttonClass} btn-sm w-100`}>
+                          {option.action}
+                        </a>
+                      ) : (
+                        <button className={`btn ${option.buttonClass} btn-sm w-100`}>
+                          {option.action}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

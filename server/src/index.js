@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const carsRoutes = require('./routes/cars');
+const subscribeRouter = require("./routes/subscribe");
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ limit: process.env.EXPRESS_JSON_LIMIT || '25mb', ex
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cars', carsRoutes);
+app.use('/api', subscribeRouter); 
 
 app.get('/api/ping', (req, res) => res.json({ ok: true }));
 

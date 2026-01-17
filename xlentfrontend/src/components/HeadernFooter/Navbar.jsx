@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { LogOut, User, Settings } from "lucide-react";
 
-const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout, trialExpired }) => {
+const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
   const [showInvestingDropdown, setShowInvestingDropdown] = useState(false);
   const [showBorrowDropdown, setShowBorrowDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -16,8 +16,8 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout, trialExpired })
   const navbarCollapseRef = useRef(null);
   const navigate = useNavigate();
 
-  // Show tabs if authenticated OR during free trial
-  const showTabs = isAuthenticated || !trialExpired;
+  // Show tabs always (trial restriction removed)
+  const showTabs = true;
 
   // Get user data from localStorage
   useEffect(() => {
@@ -126,69 +126,10 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout, trialExpired })
 
           <div className="collapse navbar-collapse justify-content-end" id="navbarSupportedContent" ref={navbarCollapseRef}>
             <ul className="navbar-nav align-items-center navbar-nav-custom">
-              {/* Show these tabs during free trial OR when authenticated */}
+              {/* Show these tabs when authenticated */}
               {showTabs && (
                 <>
-                  {/* Fleet Dropdown */}
-                  <li className="nav-item dropdown" ref={investingRef}>
-                    <a 
-                      className="nav-link dropdown-toggle nav-link-custom" 
-                      href="#fleet"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setShowInvestingDropdown(!showInvestingDropdown);
-                      }}
-                      style={{ 
-                        cursor: 'pointer',
-                        color: 'white'
-                      }}
-                    >
-                      Our Fleet
-                    </a>
-                    {showInvestingDropdown && (
-                      <div 
-                        className="dropdown-menu show dropdown-menu-custom"
-                        style={{
-                          position: 'absolute',
-                          backgroundColor: 'white',
-                          border: '1px solid #dee2e6',
-                          borderRadius: '8px',
-                          boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                          minWidth: '280px',
-                          padding: '1rem 0'
-                        }}
-                      >
-                        {[
-                          { name: "Economy Cars", description: "Fuel-efficient & budget-friendly" },
-                          { name: "SUVs & Crossovers", description: "Spacious for families & groups" },
-                          { name: "Luxury Vehicles", description: "Premium comfort & style" },
-                          { name: "Business Fleet", description: "Corporate rental solutions" }
-                        ].map((item, index) => (
-                          <div key={index}>
-                            <a 
-                              className="dropdown-item dropdown-item-custom" 
-                              href={`#${item.name.toLowerCase().replace(' ', '-')}`}
-                              onClick={closeMenu}
-                              style={{ 
-                                padding: '0.75rem 1.5rem',
-                                display: 'block',
-                                textDecoration: 'none',
-                                color: '#333',
-                                transition: 'background-color 0.2s'
-                              }}
-                              onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                            >
-                              <div style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{item.name}</div>
-                              <div style={{ fontSize: '0.875rem', color: '#6c757d' }}>{item.description}</div>
-                            </a>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </li>
-
-                  {/* Locations Dropdown */}
+                  
                   <li className="nav-item dropdown" ref={borrowRef}>
                     <a 
                       className="nav-link dropdown-toggle nav-link-custom" 
@@ -213,15 +154,20 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout, trialExpired })
                           border: '1px solid #dee2e6',
                           borderRadius: '8px',
                           boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                          minWidth: '250px',
-                          padding: '1rem 0'
+                          minWidth: '200px',
+                          padding: '0.5rem 0',
+                          maxHeight:'300px',
+                          overflowY:'auto',
+                    
                         }}
                       >
                         {[
-                          { name: "Airport Pickups", description: "Convenient airport locations" },
-                          { name: "City Centers", description: "Downtown rental offices" },
-                          { name: "Nationwide", description: "200+ locations across the India" },
-                          { name: "International", description: "Global rental partners" }
+                          { name: "Bengaluru" },
+                          { name: "Chennai" },
+                          { name: "Hyderabad" },
+                          { name: "Nagpur" },
+                          { name: "Pune" },
+                        
                         ].map((item, index) => (
                           <div key={index}>
                             <a 
@@ -312,7 +258,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout, trialExpired })
                   
                   {showUserDropdown && (
                     <div 
-                      className="dropdown-menu show dropdown-menu-custom"
+                      className="dropdown-menu show dropdown-menu-custom1"
                       style={{
                         position: 'absolute',
                         right: 0,
@@ -330,17 +276,17 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout, trialExpired })
                         <div className="fw-semibold text-truncate">{userData?.email || 'user@example.com'}</div>
                       </div>
                       
-                      <Link to="/dashboard" className="dropdown-item dropdown-item-custom d-flex align-items-center" onClick={closeMenu}>
+                      <Link to="/dashboard" className="dropdown-item dropdown-item-custom d-flex align-items-center" >
                         <i className="bi bi-speedometer2 me-2"></i>
                         Dashboard
                       </Link>
                       
-                      <Link to="/profile" className="dropdown-item dropdown-item-custom d-flex align-items-center" onClick={closeMenu}>
+                      <Link to="/profile" className="dropdown-item dropdown-item-custom d-flex align-items-center" >
                         <User size={16} className="me-2" />
                         My Profile
                       </Link>
                       
-                      <Link to="/settings" className="dropdown-item dropdown-item-custom d-flex align-items-center" onClick={closeMenu}>
+                      <Link to="/settings" className="dropdown-item dropdown-item-custom d-flex align-items-center" >
                         <Settings size={16} className="me-2" />
                         Settings
                       </Link>
@@ -455,7 +401,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout, trialExpired })
             margin-bottom: 0.5rem;
           }
           
-          .dropdown-menu-custom {
+          .dropdown-menu-custom1 {
             position: static !important;
             float: none;
             width: 100%;

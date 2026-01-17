@@ -11,9 +11,7 @@ import HelpCenter from "./components/HelpCenter/HelpCenter";
 import SpecialDeals from "./components/SpecialDeals/SpecialDeals";
 import AboutPage from "./components/AboutPage/AboutPage";
 import TermsConditionsPage from "./components/TermsandConditions/TermsConditionsPage";
-import TrialExpiredModal from "./components/TrialExpiredModal";
 import AddCar from "./components/AddCar/AddCar";
-import { useFreeTrial } from "./hooks/useFreeTrial";
 
 const NewPropertyCard = lazy(() => import("./components/newFetchCarousel"));
 const TrendingProperties = lazy(() => import("./components/TrendingProperties"));
@@ -22,8 +20,8 @@ const Testimonials = lazy(() => import("./components/Testimonials/Testimonials")
 const Footer = lazy(() => import("./components/Footer/Footer"));
 
 // ---------- PURE PROTECTED ROUTE ----------
-const ProtectedRoute = ({ children, isAuthenticated, trialExpired }) => {
-  if (!isAuthenticated && trialExpired) {
+const ProtectedRoute = ({ children, isAuthenticated }) => {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -44,7 +42,6 @@ const Dashboard = () => (
 // ---------- ROUTER WRAPPER ----------
 function AppRoutes({ theme, toggleTheme }) {
   const navigate = useNavigate();
-  const { trialExpired, timeRemaining } = useFreeTrial();
 
   // SINGLE SOURCE OF TRUTH FOR AUTH
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -65,11 +62,9 @@ function AppRoutes({ theme, toggleTheme }) {
         toggleTheme={toggleTheme}
         isAuthenticated={isAuthenticated}
         onLogout={handleLogout}
-        trialExpired={trialExpired}
       />
 
       <BackButton />
-      <TrialExpiredModal show={trialExpired} timeRemaining={timeRemaining} />
 
       <Suspense
         fallback={
@@ -84,7 +79,6 @@ function AppRoutes({ theme, toggleTheme }) {
             element={
               <ProtectedRoute
                 isAuthenticated={isAuthenticated}
-                trialExpired={trialExpired}
               >
                 <Dashboard />
               </ProtectedRoute>
@@ -96,7 +90,6 @@ function AppRoutes({ theme, toggleTheme }) {
             element={
               <ProtectedRoute
                 isAuthenticated={isAuthenticated}
-                trialExpired={trialExpired}
               >
                 <AddCar />
               </ProtectedRoute>

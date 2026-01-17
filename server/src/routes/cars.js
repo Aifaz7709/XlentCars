@@ -50,11 +50,28 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// GET /api/cars - Get all cars for logged-in user
+// GET /api/cars - Get all cars for logged-in user (requires auth)
 router.get('/', verifyToken, async (req, res) => {
   try {
     const userId = req.userId;
     const [cars] = await pool.query('SELECT id, carName, vinNumber, photos, createdAt FROM cars WHERE userId = ? ORDER BY createdAt DESC', [userId]);
+    
+    const formattedCars = cars.map(car => ({
+      ...car,
+      photos: car.photos ? JSON.parse(car.photos) : []
+    }));
+
+    return res.json({ cars: formattedCars });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// GET /api/cars/public - Get all cars for public display (no auth required)
+router.get('/public', async (req, res) => {
+  try {
+    const [cars] = await pool.query('SELECT id, carName, vinNumber, photos, createdAt FROM cars ORDER BY createdAt DESC');
     
     const formattedCars = cars.map(car => ({
       ...car,

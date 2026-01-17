@@ -1,23 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './HeadingsSection.css';
 
 const HeadingsSection = () => {
-  const [currentCity, setCurrentCity] = useState('Los Angeles');
-  const [animationClass, setAnimationClass] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
    const [formData, setFormData] = useState({
       name: "",
       phone: "",
       phone_no: "",
-      email:''
+      email:'' 
     });
-
-  const usCities = [
-    'Los Angeles', 'New York', 'Chicago', 'Houston', 'Phoenix',
-    'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose',
-    'Austin', 'Miami', 'Seattle', 'Denver', 'Boston', 'Atlanta'
-  ];
 
    const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +26,6 @@ const HeadingsSection = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    console.log("Form submitted:", formData);
     setIsSubmitting(false);
     setFormData({ name: "", phone: "" });
     setShowForm(false);
@@ -64,26 +55,6 @@ const HeadingsSection = () => {
       }, 300);
     }, 3000);
   };
-  useEffect(() => {
-    let cityIndex = 0;
-
-    const rotateCities = () => {
-      setAnimationClass('fade-out');
-      
-      setTimeout(() => {
-        cityIndex = (cityIndex + 1) % usCities.length;
-        setCurrentCity(usCities[cityIndex]);
-        setAnimationClass('fade-in');
-      }, 500);
-
-      setTimeout(() => {
-        setAnimationClass('');
-      }, 1000);
-    };
-
-    const interval = setInterval(rotateCities, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <section className="headings-container">
@@ -92,63 +63,55 @@ const HeadingsSection = () => {
 
   {/* LEFT SIDE TEXT */}
  <div style={{ flex: "1", padding: "0 15px" }}>
-  <h1 
-    className="headline" 
-    style={{ 
-      color: "#fff", 
-      visibility: 'hidden',
-      fontSize: "clamp(14px, 3vw, 20px)"
-    }}
-  >
-    How does it work?
-  </h1>
 
-  <h2 
-    className="main-headline" 
-    style={{ 
-      color: "#fff",
-      fontSize: "clamp(28px, 8vw, 48px)",
-      lineHeight: "1.2",
-      marginBottom: "20px",
-      fontWeight: "700"
-    }}
-  >
-    Your Journey, Your Way.
-  </h2>
+ <h2 
+  className="main-headline" 
+  style={{ 
+    color: "#fff",
+    fontSize: "clamp(28px, 8vw, 48px)",
+    lineHeight: "1.2",
+    marginBottom: "20px",
+    fontWeight: "700",
+    textAlign: "left"
+  }}
+>
+  Your Journey, Your Way.
+</h2>
 
-  <div 
-    style={{ 
-      color: "#fff", 
-      fontSize: "clamp(40px, 12vw, 100px)",
-      fontFamily: "fantasy", 
-      margin: "10px 0",
-      display: "flex",
-      alignItems: "center",
-      gap: "5px"
-    }}
-  >
-    <span style={{ 
-      color: "#fff", 
-      fontSize: "clamp(30px, 10vw, 80px)", 
-      fontFamily: "fantasy"
-    }}>
-      ₹
-    </span> 
-    500/Day
-  </div>
-
-  <p style={{ 
+<div 
+  style={{ 
     color: "#fff", 
-    fontSize: "clamp(16px, 4vw, 20px)", 
-    lineHeight: "1.6", 
-    maxWidth: "100%",
-    marginBottom: "25px"
+    fontSize: "clamp(40px, 12vw, 100px)",
+    fontFamily: "fantasy", 
+    margin: "10px 0",
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
+    justifyContent: "flex-start"
+  }}
+>
+  <span style={{ 
+    color: "#fff", 
+    fontSize: "clamp(30px, 10vw, 80px)", 
+    fontFamily: "fantasy"
   }}>
-    Start your adventure with our premium fleet at unbeatable rates. 
-    <br />
-    <strong>No hidden fees, no complicated contracts</strong> - just the perfect car for your journey.
-  </p>
+    ₹
+  </span> 
+  500/Day
+</div>
 
+<p style={{ 
+  color: "#fff", 
+  fontSize: "clamp(16px, 4vw, 20px)", 
+  lineHeight: "1.6", 
+  maxWidth: "100%",
+  marginBottom: "25px",
+  textAlign: "left"
+}}>
+  Start your adventure with our premium fleet at unbeatable rates. 
+  <br />
+  <strong>No hidden fees, no complicated contracts</strong> - just the perfect car for your journey.
+</p>
   <button
     onClick={() => setShowForm(true)} 
     style={{

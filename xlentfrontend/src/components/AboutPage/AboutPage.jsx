@@ -57,11 +57,7 @@ const AboutPage = () => {
   ];
 
   const milestones = [
-    { year: "2015", title: "Founded in Chennai", description: "Started with 10 cars" },
-    { year: "2017", title: "Expanded Operations", description: "Covered major Tamil Nadu cities" },
-    { year: "2019", title: "Digital Transformation", description: "Launched mobile app" },
-    { year: "2021", title: "Fleet Growth", description: "Reached 500+ vehicles" },
-    { year: "2023", title: "Award Winning", description: "Best Car Rental Service Award" }
+    { year: "2025", title: "Founded in Chennai", description: "Started with 10 cars" }
   ];
 
   const values = [
@@ -114,7 +110,7 @@ const AboutPage = () => {
           <div className="row align-items-center">
             <div className="col-12 col-lg-7">
               <h1 className="display-4 fw-bold mb-4" style={{color:'white'}}>
-                Driving Excellence Since 2020
+                Driving Excellence Since 2025
               </h1>
               <p className="lead mb-4" style={{ opacity: '0.9' , color:'white'}}>
                 Xlentcar is more than just a car rental service. We're your trusted partner 
@@ -137,7 +133,7 @@ const AboutPage = () => {
                     <Award size={32} className="me-3" />
                     <div>
                       <h3 className="h5 mb-0">Award Winning Service</h3>
-                      <p className="small mb-0 opacity-90">Best Car Rental 2023</p>
+                      <p className="small mb-0 opacity-90">Best Car Rental 2025</p>
                     </div>
                   </div>
                   <div className="d-flex align-items-center mb-3">
@@ -151,7 +147,7 @@ const AboutPage = () => {
                     <Users size={32} className="me-3" />
                     <div>
                       <h3 className="h5 mb-0">Trusted by Thousands</h3>
-                      <p className="small mb-0 opacity-90">Since 2015</p>
+                      <p className="small mb-0 opacity-90">Since 2025</p>
                     </div>
                   </div>
                 </div>
@@ -169,7 +165,7 @@ const AboutPage = () => {
               Our <span className="text-primary">Story</span>
             </h2>
             <p className="lead mb-4">
-              Founded in 2020 in the heart of Chennai, Xlentcar began with a simple vision: 
+              Founded in 2025 in the heart of Chennai, Xlentcar began with a simple vision: 
               to make car rental accessible, reliable, and exceptional for everyone.
             </p>
             <p className="mb-4">
@@ -331,41 +327,8 @@ const AboutPage = () => {
                     <div className="d-flex align-items-center">
                       <Award size={24} className="me-3" />
                       <div>
-                        <h4 className="h5 mb-1">Best Car Rental Service 2023</h4>
+                        <h4 className="h5 mb-1">Best Car Rental Service 2025</h4>
                         <p className="small mb-0 opacity-90">Auto Excellence Awards</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-12 col-md-6">
-                  <div className="bg-white bg-opacity-10 rounded-3 p-3">
-                    <div className="d-flex align-items-center">
-                      <ThumbsUp size={24} className="me-3" />
-                      <div>
-                        <h4 className="h5 mb-1">Customer Choice Award 2022</h4>
-                        <p className="small mb-0 opacity-90">Travel & Hospitality Awards</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-12 col-md-6">
-                  <div className="bg-white bg-opacity-10 rounded-3 p-3">
-                    <div className="d-flex align-items-center">
-                      <Star size={24} className="me-3" />
-                      <div>
-                        <h4 className="h5 mb-1">Innovation Excellence 2021</h4>
-                        <p className="small mb-0 opacity-90">Tech Mobility Awards</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-12 col-md-6">
-                  <div className="bg-white bg-opacity-10 rounded-3 p-3">
-                    <div className="d-flex align-items-center">
-                      <Shield size={24} className="me-3" />
-                      <div>
-                        <h4 className="h5 mb-1">Safety First Award 2020</h4>
-                        <p className="small mb-0 opacity-90">Automotive Safety Council</p>
                       </div>
                     </div>
                   </div>
@@ -438,10 +401,10 @@ const AboutPage = () => {
                   <Car size={20} className="me-2" />
                   Book Your Ride
                 </button>
-                <button className="btn btn-outline-primary px-4 py-3">
+                <a href="tel:+918682844516" className="btn btn-outline-primary px-4 py-3">
                   <Phone size={20} className="me-2" />
                   Call Us Now
-                </button>
+                </a>
               </div>
             </div>
           </div>

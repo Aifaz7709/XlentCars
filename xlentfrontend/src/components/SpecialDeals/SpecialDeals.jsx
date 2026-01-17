@@ -27,7 +27,9 @@ const SpecialDeals = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [sortBy, setSortBy] = useState("popularity");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [subscriberEmail, setSubscriberEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState("");
   const dealCategories = [
     { id: "all", label: "All Deals" },
     { id: "weekend", label: "Weekend Specials" },
@@ -196,6 +198,37 @@ const SpecialDeals = () => {
     return true;
   });
 
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!subscriberEmail) return;
+
+    try {
+      setIsSubscribing(true);
+      setSubscribeMessage("");
+      const res = await fetch("http://localhost:5001/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: subscriberEmail }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to subscribe");
+      }
+      
+      setSubscribeMessage("Thank you! We'll send you our best deals.");
+      setSubscriberEmail("");
+    } catch (err) {
+      console.error("Subscribe error:", err);
+      setSubscribeMessage(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
+
   const sortDeals = (deals) => {
     switch(sortBy) {
       case "discount":
@@ -328,7 +361,7 @@ const SpecialDeals = () => {
 <div 
   className="text-white py-5"
   style={{
-    background: 'linear-gradient(135deg, #02287c 0%, #0d6efd 100%)'
+    background: 'linear-gradient(135deg,rgb(14, 6, 123) 0%,rgb(11, 35, 188) 100%)'
   }}
 >        <div className="container" style={{marginTop:'70px'}}>
           <div className="row align-items-center">
@@ -365,11 +398,11 @@ const SpecialDeals = () => {
             <div className="col-12 col-lg-4 mt-4 mt-lg-0">
               <div className="card bg-white bg-opacity-10 border-0">
                 <div className="card-body text-center">
-                  <div className="display-6 fw-bold mb-2">30-50% OFF</div>
-                  <p className="mb-0">On Selected Packages</p>
-                  <div className="mt-3">
+                  <div className="display-6 fw-bold mb-2" style={{color:'white'}}>30-50% OFF</div>
+                  <p className="mb-0" style={{color:'white'}}>On Selected Packages</p>
+                  <div className="mt-3" style={{color:'white'}}>
                     <Timer size={24} className="mb-2" />
-                    <div className="small">Limited Time Offer</div>
+                    <div className="small" style={{color:'white'}}>Limited Time Offer</div>
                   </div>
                 </div>
               </div>
@@ -484,50 +517,60 @@ const SpecialDeals = () => {
           </div>
         )}
 
-        {/* Newsletter Section */}
-        <div className="row mt-5 pt-5">
-          <div className="col-12">
-<div 
-  className="card border-0 text-white overflow-hidden"
-  style={{
-    background: 'linear-gradient(135deg, #02287c 0%, #0d6efd 100%)',
-    borderRadius: '15px'
-  }}
->              <div className="row g-0 align-items-center">
-                <div className="col-12 col-lg-8 p-4 p-lg-5">
-                  <h3 className="h2 fw-bold mb-3">Don't Miss Our Best Deals!</h3>
-                  <p className="mb-4" style={{ opacity: '0.9' }}>
-                    Subscribe to get exclusive offers, early access to sales, and personalized deals.
-                  </p>
-                  <div className="row g-2">
-                    <div className="col-12 col-md-8">
-                      <input 
-                        type="email" 
-                        className="form-control form-control-lg" 
-                        placeholder="Enter your email address"
-                      />
-                    </div>
-                    <div className="col-12 col-md-4">
-                      <button className="btn btn-light text-primary btn-lg w-100 fw-bold">
-                        Subscribe
-                      </button>
-                    </div>
-                  </div>
-                  <div className="form-text text-white-50 mt-2">
-                    By subscribing, you agree to our Privacy Policy
-                  </div>
-                </div>
-                <div className="col-12 col-lg-4 d-none d-lg-block">
-                  <div className="p-5 text-center">
-                    <div className="display-4 mb-3">🎁</div>
-                    <div className="h5">Extra 10% OFF</div>
-                    <div className="small">For Subscribers</div>
-                  </div>
-                </div>
-              </div>
+      {/* Newsletter Section */}
+<div className="row mt-5 pt-5">
+  <div className="col-12">
+    <div
+      className="card border-0 text-white overflow-hidden"
+      style={{
+        background: "linear-gradient(135deg, #02287c 0%, #0d6efd 100%)",
+        borderRadius: "15px",
+      }}
+    >
+      <div className="row g-0 align-items-center">
+        <div className="col-12 col-lg-8 p-4 p-lg-5">
+          <h3 className="h2 fw-bold mb-3">Don't Miss Our Best Deals!</h3>
+          <p className="mb-4" style={{ opacity: "0.9" }}>
+            Subscribe to get exclusive offers, early access to sales, and personalized deals.
+          </p>
+
+          <form className="row g-2" onSubmit={handleSubscribe}>
+            <div className="col-12 col-md-8">
+              <input
+                type="email"
+                className="form-control form-control-lg"
+                placeholder="Enter your email address"
+                value={subscriberEmail}
+                onChange={(e) => setSubscriberEmail(e.target.value)}
+                required
+              />
             </div>
+            <div className="col-12 col-md-4">
+              <button
+                type="submit"
+                className="btn btn-light text-primary btn-lg w-100 fw-bold"
+                disabled={isSubscribing}
+              >
+                {isSubscribing ? "Subscribing..." : "Subscribe"}
+              </button>
+            </div>
+          </form>
+
+          {subscribeMessage && (
+            <div className="form-text mt-2" style={{ color: "white" }}>
+              {subscribeMessage}
+            </div>
+          )}
+
+          <div className="form-text text-white-50 mt-2">
+            By subscribing, you agree to our Privacy Policy
           </div>
         </div>
+        {/* right column unchanged */}
+      </div>
+    </div>
+  </div>
+</div>
 
         {/* FAQ Section */}
         <div className="row mt-5">
@@ -586,9 +629,9 @@ const SpecialDeals = () => {
               </p>
             </div>
             <div className="col-12 col-lg-4 text-lg-end mt-3 mt-lg-0">
-              <a href="tel:+9186828XXXXX" className="btn btn-light text-primary btn-lg px-4">
+              <a href="tel:+918682844516" className="btn btn-light text-primary btn-lg px-4">
                 <Phone size={18} className="me-2" />
-                Call Now: +91 86828 *****
+                Call Now: +91 8682844516
               </a>
             </div>
           </div>

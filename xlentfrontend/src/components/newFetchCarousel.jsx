@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./NewPropertyCard.css";
 
 const NewPropertyCard = () => {
@@ -11,7 +10,7 @@ const NewPropertyCard = () => {
 
   const placeholderImg = "https://via.placeholder.com/300x200?text=No+Image";
   
-  // Mock car images for Indian cars
+  // Mock car images for Indian cars (fallback)
   const carImages = [
     "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=400&h=300&fit=crop", // Sedan
     "https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=400&h=300&fit=crop", // SUV
@@ -30,89 +29,118 @@ const NewPropertyCard = () => {
     });
   }
 
-  // Function to fetch from free car API
-  const fetchFromFreeAPI = async () => {
-    try {
-      const response = await axios.get('https://freetestapi.com/api/v1/cars');
-      return response.data;
-    } catch (err) {
-      console.log('Free API failed, using fallback data');
-      return generateFallbackData();
-    }
-  };
-
-  // Function to fetch from NHTSA API
-  const fetchFromNHTSA = async () => {
-    try {
-      const response = await axios.get(
-        'https://vpic.nhtsa.dot.gov/api/vehicles/getallmakes?format=json'
-      );
-      const makes = response.data.Results.slice(0, 12);
-      return generateCarDataFromMakes(makes);
-    } catch (err) {
-      console.log('NHTSA API failed, using fallback data');
-      return generateFallbackData();
-    }
-  };
-
-  // Generate car data from makes for Indian market
-  const generateCarDataFromMakes = (makes) => {
+  // Transform backend car data to display format
+  const transformCarData = (apiCars) => {
     const carTypes = ["Sedan", "SUV", "Hatchback", "Luxury", "Compact", "MUV"];
     const locations = ["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Chennai", "Kolkata"];
     const fuelTypes = ["Petrol", "Diesel", "CNG", "Electric"];
-    const popularIndianCars = ["Swift Dzire", "Hyundai Creta", "Tata Nexon", "Honda City", "Maruti Baleno", "Mahindra Scorpio"];
     
-    return makes.slice(0, 12).map((make, index) => ({
-      id: make.Make_ID,
-      name: make.Make_Name,
-      model: popularIndianCars[index % popularIndianCars.length],
-      type: carTypes[index % carTypes.length],
-      dailyRate: Math.floor(Math.random() * 3000) + 800, // ₹800-₹3800 per day
-      image: carImages[index % carImages.length],
-      location: locations[index % locations.length],
-      seats: Math.floor(Math.random() * 4) + 4, // 4-7 seats
-      luggage: Math.floor(Math.random() * 3) + 1, // 1-3 bags
-      transmission: ["Automatic", "Manual"][Math.floor(Math.random() * 2)],
-      fuelType: fuelTypes[Math.floor(Math.random() * fuelTypes.length)],
-      available: Math.random() > 0.2,
-      mileage: `${Math.floor(Math.random() * 10) + 15} kmpl`,
-      features: ["AC", "Bluetooth", "GPS", "Backup Camera", "Airbags", "Power Windows"].slice(0, 3 + Math.floor(Math.random() * 3))
-    }));
+    return apiCars.map((car, index) => {
+      // Extract car name and model from carName
+      const carNameParts = car.carName ? car.carName.split(' ') : ['Car', 'Model'];
+      const name = carNameParts[0] || 'Car';
+      const model = carNameParts.slice(1).join(' ') || 'Model';
+      
+      // Use first photo if available, otherwise use placeholder
+      const image = car.photos && car.photos.length > 0 
+        ? car.photos[0] 
+        : carImages[index % carImages.length];
+      
+      return {
+        id: car.id || index,
+        name: name,
+        model: model,
+        type: carTypes[index % carTypes.length],
+        dailyRate: Math.floor(Math.random() * 3000) + 800, // ₹800-₹3800 per day
+        image: image,
+        location: locations[index % locations.length],
+        seats: Math.floor(Math.random() * 4) + 4, // 4-7 seats
+        luggage: Math.floor(Math.random() * 3) + 1, // 1-3 bags
+        transmission: ["Automatic", "Manual"][Math.floor(Math.random() * 2)],
+        fuelType: fuelTypes[Math.floor(Math.random() * fuelTypes.length)],
+        available: true,
+        mileage: `${Math.floor(Math.random() * 10) + 15} kmpl`,
+        features: ["AC", "Bluetooth", "GPS", "Backup Camera", "Airbags", "Power Windows"].slice(0, 3 + Math.floor(Math.random() * 3)),
+        vinNumber: car.vinNumber
+      };
+    });
   };
 
   // Fallback data with Indian car brands
   const generateFallbackData = () => {
     const indianCarMakes = [
-      { Make_ID: 1, Make_Name: "Maruti Suzuki" },
-      { Make_ID: 2, Make_Name: "Hyundai" },
-      { Make_ID: 3, Make_Name: "Tata Motors" },
-      { Make_ID: 4, Make_Name: "Mahindra" },
-      { Make_ID: 5, Make_Name: "Honda" },
-      { Make_ID: 6, Make_Name: "Toyota" },
-      { Make_ID: 7, Make_Name: "Ford" },
-      { Make_ID: 8, Make_Name: "Renault" },
-      { Make_ID: 9, Make_Name: "Volkswagen" },
-      { Make_ID: 10, Make_Name: "Skoda" },
-      { Make_ID: 11, Make_Name: "MG Motor" },
-      { Make_ID: 12, Make_Name: "Kia" }
+      { Make_ID: 1, Make_Name: "Maruti Suzuki", Make_Model: "Swift Dzire" },
+      { Make_ID: 2, Make_Name: "Hyundai", Make_Model: "Creta" },
+      { Make_ID: 3, Make_Name: "Tata Motors", Make_Model: "Nexon" },
+      { Make_ID: 4, Make_Name: "Mahindra", Make_Model: "Scorpio" },
+      { Make_ID: 5, Make_Name: "Honda", Make_Model: "City" },
+      { Make_ID: 6, Make_Name: "Toyota", Make_Model: "Innova" }
     ];
-    return generateCarDataFromMakes(indianCarMakes);
+    
+    const carTypes = ["Sedan", "SUV", "Hatchback", "Luxury", "Compact", "MUV"];
+    const locations = ["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Chennai", "Kolkata"];
+    const fuelTypes = ["Petrol", "Diesel", "CNG", "Electric"];
+    
+    return indianCarMakes.map((make, index) => ({
+      id: make.Make_ID,
+      name: make.Make_Name,
+      model: make.Make_Model,
+      type: carTypes[index % carTypes.length],
+      dailyRate: Math.floor(Math.random() * 3000) + 800,
+      image: carImages[index % carImages.length],
+      location: locations[index % locations.length],
+      seats: Math.floor(Math.random() * 4) + 4,
+      luggage: Math.floor(Math.random() * 3) + 1,
+      transmission: ["Automatic", "Manual"][Math.floor(Math.random() * 2)],
+      fuelType: fuelTypes[Math.floor(Math.random() * fuelTypes.length)],
+      available: true,
+      mileage: `${Math.floor(Math.random() * 10) + 15} kmpl`,
+      features: ["AC", "Bluetooth", "GPS", "Backup Camera", "Airbags", "Power Windows"].slice(0, 3 + Math.floor(Math.random() * 3))
+    }));
+  };
+
+  // Fetch cars from backend API (public endpoint - shows all cars)
+  const fetchCarsFromAPI = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_BASE_URL ? `${process.env.REACT_APP_API_BASE_URL}/api/cars` : 'http://localhost:5000/api/cars';
+
+      
+      const res = await fetch(apiUrl);
+
+      if (!res.ok) {
+        return [];
+      }
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        return [];
+      }
+
+      const data = await res.json();
+      return data.cars || [];
+    } catch (err) {
+      console.error('Error fetching cars from API:', err);
+      return [];
+    }
   };
 
   // Main fetch function
   async function fetchCars() {
     setLoading(true);
     try {
-      // Try free API first, then NHTSA, then fallback
-      let carData = await fetchFromFreeAPI();
+      // First, try to fetch from backend API
+      const apiCars = await fetchCarsFromAPI();
       
-      if (!carData || carData.length === 0) {
-        carData = await fetchFromNHTSA();
+      if (apiCars && apiCars.length > 0) {
+        // Transform and use API data
+        const transformedCars = transformCarData(apiCars);
+        setCars(transformedCars);
+      } else {
+        // Fallback to mock data if API returns empty or fails
+        setCars(generateFallbackData());
       }
-      
-      setCars(carData);
     } catch (err) {
-      console.error("API Error:", err);
+      console.error("Error fetching cars:", err);
       setCars(generateFallbackData());
     } finally {
       setLoading(false);
@@ -179,7 +207,7 @@ const NewPropertyCard = () => {
 
               {/* Car Image */}
               <img
-                src={car.image}
+                src=""
                 onError={(e) => (e.target.src = placeholderImg)}
                 className="property-img"
                 alt={`${car.name} ${car.model}`}
