@@ -130,7 +130,6 @@ const RegisterPage = () => {
           });
   
           const data = await res.json();
-          console.log('Registration response:', data);
   
           if (!res.ok) {
             // If backend returns Supabase error, show it
