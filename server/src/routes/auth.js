@@ -4,7 +4,6 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const supabase = require('../../supabaseClient'); // Your existing client
 
-// BOTH endpoints using the SAME client (service role)
 router.post('/register', async (req, res) => {
   try {
     const {
