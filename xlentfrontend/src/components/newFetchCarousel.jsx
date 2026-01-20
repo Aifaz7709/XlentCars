@@ -9,8 +9,8 @@ const NewPropertyCard = () => {
   const reduxCars = useSelector((state) => state.cars.cars);
   const reduxLoading = useSelector((state) => state.cars.loading);
   
-  const [cars, setCars] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [localCars, setLocalCars] = useState([]);
+  const [hasFetched, setHasFetched] = useState(false); // NEW: Track if we've already fetched
   const [favorites, setFavorites] = useState(() =>
     JSON.parse(localStorage.getItem("favorites")) || []
   );
@@ -43,32 +43,28 @@ const NewPropertyCard = () => {
     const fuelTypes = ["Petrol", "Diesel", "CNG", "Electric"];
     
     return apiCars.map((car, index) => {
-      // Extract car name and model from carName
-      const carNameParts = car.carName ? car.carName.split(' ') : ['Car', 'Model'];
-      const name = carNameParts[0] || 'Car';
-      const model = carNameParts.slice(1).join(' ') || 'Model';
+      // Use the actual data from your Supabase cars table
+      const make = car.make || "Car";
+      const model = car.model || "Model";
       
-      // Use first photo if available, otherwise use placeholder
-      const image = car.photos && car.photos.length > 0 
-        ? car.photos[0] 
-        : carImages[index % carImages.length];
+      // Use image_url from database if available
+      const image = car.image_url || carImages[index % carImages.length];
       
       return {
         id: car.id || index,
-        name: name,
+        name: make,
         model: model,
         type: carTypes[index % carTypes.length],
-        dailyRate: Math.floor(Math.random() * 3000) + 800, // ₹800-₹3800 per day
+        dailyRate: car.price_per_day || Math.floor(Math.random() * 3000) + 800,
         image: image,
         location: locations[index % locations.length],
-        seats: Math.floor(Math.random() * 4) + 4, // 4-7 seats
+        seats: car.seats || Math.floor(Math.random() * 4) + 4,
         luggage: Math.floor(Math.random() * 3) + 1, // 1-3 bags
-        transmission: ["Automatic", "Manual"][Math.floor(Math.random() * 2)],
-        fuelType: fuelTypes[Math.floor(Math.random() * fuelTypes.length)],
-        available: true,
-        mileage: `${Math.floor(Math.random() * 10) + 15} kmpl`,
-        features: ["AC", "Bluetooth", "GPS", "Backup Camera", "Airbags", "Power Windows"].slice(0, 3 + Math.floor(Math.random() * 3)),
-        vinNumber: car.vinNumber
+        transmission: car.transmission || "Automatic",
+        fuelType: car.fuel_type || fuelTypes[Math.floor(Math.random() * fuelTypes.length)],
+        available: car.available !== false,
+        mileage: car.mileage ? `${car.mileage} km` : `${Math.floor(Math.random() * 10) + 15} kmpl`,
+        features: ["AC", "Bluetooth", "GPS", "Backup Camera", "Airbags", "Power Windows"].slice(0, 3 + Math.floor(Math.random() * 3))
       };
     });
   };
@@ -76,12 +72,12 @@ const NewPropertyCard = () => {
   // Fallback data with Indian car brands
   const generateFallbackData = () => {
     const indianCarMakes = [
-      { Make_ID: 1, Make_Name: "Maruti Suzuki", Make_Model: "Swift Dzire" },
-      { Make_ID: 2, Make_Name: "Hyundai", Make_Model: "Creta" },
-      { Make_ID: 3, Make_Name: "Tata Motors", Make_Model: "Nexon" },
-      { Make_ID: 4, Make_Name: "Mahindra", Make_Model: "Scorpio" },
-      { Make_ID: 5, Make_Name: "Honda", Make_Model: "City" },
-      { Make_ID: 6, Make_Name: "Toyota", Make_Model: "Innova" }
+      { id: 1, name: "Maruti Suzuki", model: "Swift Dzire" },
+      { id: 2, name: "Hyundai", model: "Creta" },
+      { id: 3, name: "Tata Motors", model: "Nexon" },
+      { id: 4, name: "Mahindra", model: "Scorpio" },
+      { id: 5, name: "Honda", model: "City" },
+      { id: 6, name: "Toyota", model: "Innova" }
     ];
     
     const carTypes = ["Sedan", "SUV", "Hatchback", "Luxury", "Compact", "MUV"];
@@ -89,9 +85,9 @@ const NewPropertyCard = () => {
     const fuelTypes = ["Petrol", "Diesel", "CNG", "Electric"];
     
     return indianCarMakes.map((make, index) => ({
-      id: make.Make_ID,
-      name: make.Make_Name,
-      model: make.Make_Model,
+      id: make.id,
+      name: make.name,
+      model: make.model,
       type: carTypes[index % carTypes.length],
       dailyRate: Math.floor(Math.random() * 3000) + 800,
       image: carImages[index % carImages.length],
@@ -106,66 +102,68 @@ const NewPropertyCard = () => {
     }));
   };
 
-// Fetch cars from backend API (public endpoint - shows all cars)
-const fetchCarsFromAPI = async () => {
-  try {
-    // CHANGE THIS LINE: Add "/public" to the endpoint
-    const apiUrl = process.env.REACT_APP_API_BASE_URL 
-      ? `${process.env.REACT_APP_API_BASE_URL}/api/cars/public` 
-      : 'http://localhost:5000/api/cars/public'; // <-- Added /public here
-    
-    const res = await fetch(apiUrl);
-
-    if (!res.ok) {
-      console.warn('Failed to fetch public cars, status:', res.status);
-      return [];
-    }
-
-    const contentType = res.headers.get('content-type') || '';
-    if (!contentType.includes('application/json')) {
-      console.warn('Response not JSON');
-      return [];
-    }
-
-    const data = await res.json();
-    return data.cars || [];
-  } catch (err) {
-    console.error('Error fetching cars from API:', err);
-    return [];
-  }
-};
-
-  // Main fetch function
-  async function fetchCars() {
-    setLoading(true);
-    dispatch(setLoadingRedux(true));
+  // Fetch cars from backend API
+  const fetchCarsFromAPI = async () => {
     try {
-      // First, try to fetch from backend API
-      const apiCars = await fetchCarsFromAPI();
+      const apiBase = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
       
-      if (apiCars && apiCars.length > 0) {
-        // Transform and use API data
-        const transformedCars = transformCarData(apiCars);
-        setCars(transformedCars);
-        // Update Redux store with fetched cars
-        dispatch(setCarsRedux(apiCars));
-      } else {
-        // Fallback to mock data if API returns empty or fails
-        const fallbackData = generateFallbackData();
-        setCars(fallbackData);
-        // Store fallback data in Redux too
-        dispatch(setCarsRedux([]));
+      const res = await fetch(`${apiBase}/api/cars`);
+      
+      if (!res.ok) {
+        console.warn('Failed to fetch cars, status:', res.status);
+        return [];
       }
+
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
     } catch (err) {
-      console.error("Error fetching cars:", err);
-      const fallbackData = generateFallbackData();
-      setCars(fallbackData);
-      dispatch(setCarsRedux([]));
-    } finally {
-      setLoading(false);
-      dispatch(setLoadingRedux(false));
+      console.error('Error fetching cars from API:', err);
+      return [];
     }
-  }
+  };
+
+  useEffect(() => {
+    // Only fetch ONCE when component mounts
+    if (!hasFetched && reduxCars.length === 0 && !reduxLoading) {
+      setHasFetched(true);
+      
+      const fetchData = async () => {
+        try {
+          dispatch(setLoadingRedux(true));
+          
+          const apiCars = await fetchCarsFromAPI();
+          
+          if (apiCars && apiCars.length > 0) {
+            // Transform and use API data
+            const transformedCars = transformCarData(apiCars);
+            setLocalCars(transformedCars);
+            // Update Redux store
+            dispatch(setCarsRedux(apiCars));
+          } else {
+            // Fallback to mock data
+            const fallbackData = generateFallbackData();
+            setLocalCars(fallbackData);
+            dispatch(setCarsRedux([]));
+          }
+        } catch (err) {
+          console.error("Error fetching cars:", err);
+          const fallbackData = generateFallbackData();
+          setLocalCars(fallbackData);
+          dispatch(setCarsRedux([]));
+        } finally {
+          dispatch(setLoadingRedux(false));
+        }
+      };
+      
+      fetchData();
+    }
+    
+    // If Redux already has cars, transform and use them
+    if (reduxCars.length > 0 && localCars.length === 0) {
+      const transformedCars = transformCarData(reduxCars);
+      setLocalCars(transformedCars);
+    }
+  }, [reduxCars, reduxLoading, hasFetched]); // Dependencies
 
   function toggleFavorite(id) {
     const updated = favorites.includes(id)
@@ -176,19 +174,8 @@ const fetchCarsFromAPI = async () => {
     localStorage.setItem("favorites", JSON.stringify(updated));
   }
 
-  useEffect(() => {
-    // If Redux has cars, use them; otherwise fetch
-    if (reduxCars && reduxCars.length > 0) {
-      const transformedCars = transformCarData(reduxCars);
-      setCars(transformedCars);
-      setLoading(false);
-    } else if (!reduxLoading && reduxCars.length === 0) {
-      // Only fetch if Redux is not loading and has no cars
-      fetchCars();
-    }
-  }, [reduxCars, reduxLoading]);
-
-  if (loading) {
+  // Use Redux loading state
+  if (reduxLoading && localCars.length === 0) {
     return (
       <div className="container py-4">
         <div className="text-center">
@@ -209,11 +196,12 @@ const fetchCarsFromAPI = async () => {
       </div>
 
       <div className="row g-3">
-        {cars.map((car) => (
+        {localCars.map((car) => (
           <div className="col-12 col-sm-6 col-md-4 col-lg-3" key={car.id}>
             <div
               className="property-card shadow-sm position-relative"
               onClick={() => (window.location.href = `/car/${car.id}`)}
+              style={{ cursor: "pointer" }}
             >
               {/* Favorite Button */}
               <div
@@ -222,6 +210,7 @@ const fetchCarsFromAPI = async () => {
                   e.stopPropagation();
                   toggleFavorite(car.id);
                 }}
+                style={{ cursor: "pointer", zIndex: 1 }}
               >
                 {favorites.includes(car.id) ? "❤️" : "🤍"}
               </div>
@@ -235,7 +224,7 @@ const fetchCarsFromAPI = async () => {
 
               {/* Car Image */}
               <img
-                src=""
+                src={car.image}
                 onError={(e) => (e.target.src = placeholderImg)}
                 className="property-img"
                 alt={`${car.name} ${car.model}`}
