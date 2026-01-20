@@ -67,7 +67,7 @@ requiredEnvs.forEach(v => {
 });
 
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 console.log('⚡ PORT Railway sees:', process.env.PORT);
 
 const server = app.listen(PORT, '0.0.0.0', () => {
