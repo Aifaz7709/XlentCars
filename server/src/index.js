@@ -25,9 +25,21 @@ app.use(cors({
 }));
 
 // Explicit preflight handler. Always respond.
-app.options('*', (req, res) => {
-  res.sendStatus(204);
-});
+const corsOptions = {
+  origin: [
+    'https://xlentcar.com',
+    'https://www.xlentcar.com',
+    'https://xlentcar.vercel.app',
+    'http://localhost:3000',
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // preflight uses same config
+
 
 /* =========================
    MIDDLEWARE
