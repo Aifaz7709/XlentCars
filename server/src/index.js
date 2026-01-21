@@ -45,7 +45,6 @@ app.use(cors(corsOptions));
 
 // REQUIRED for browser preflight behind Railway / proxies
 app.options('*', cors(corsOptions));
-
 /* =========================
    MIDDLEWARE
    ========================= */
