@@ -1,3 +1,4 @@
+require('dotenv').config();
 // src/checkEnv.js
 const requiredEnvs = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
 
