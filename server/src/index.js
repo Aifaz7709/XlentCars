@@ -10,22 +10,26 @@ const app = express();
 
 // ================= CORS =================
 const allowedOrigins = [
-  'https://www.xlentcar.com',
   'https://xlentcar.com',
+  'https://www.xlentcar.com',
   'https://xlentcar.vercel.app',
-  'http://localhost:3000',
-  'http://127.0.0.1:3000'
+  'http://localhost:3000'
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // allow Postman, curl, mobile
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    console.log('🚫 Blocked origin:', origin);
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+
+    console.error('🚫 CORS blocked origin:', origin);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
+
 
 // ================= Middleware =================
 app.use(express.json({ limit: process.env.EXPRESS_JSON_LIMIT || '25mb' }));
@@ -67,7 +71,7 @@ requiredEnvs.forEach(v => {
 });
 
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 5000;
 console.log('⚡ PORT Railway sees:', process.env.PORT);
 
 const server = app.listen(PORT, '0.0.0.0', () => {
