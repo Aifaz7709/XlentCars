@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ContactUsCard from "./Popups/ContactUsCard";
-
+import { useNavigate } from 'react-router-dom';
 const Hero = ( {onCloseContactUs} ) => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -10,7 +10,7 @@ const Hero = ( {onCloseContactUs} ) => {
       email:''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const navigate = useNavigate();
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -82,7 +82,7 @@ const Hero = ( {onCloseContactUs} ) => {
                 <span className="btn-content">Get started</span>
                 <span className="btn-arrow">→</span>
               </button>
-              <a href="#services" className="btn btn-outline-dark btn-xl rounded-pill my-4">Why XLent Cars?</a>
+              <a  className="btn btn-outline-dark btn-xl rounded-pill my-4"     onClick={() => navigate('/about')}>Why XLent Cars?</a>
             </div>
           </div>
         </div>

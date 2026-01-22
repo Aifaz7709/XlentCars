@@ -23,34 +23,38 @@ import {
   Smile
 } from "lucide-react";
 import Footer from "../Footer/Footer";
+import { useNavigate } from 'react-router-dom';
+
 import './About.css'
 const AboutPage = () => {
+  const navigate = useNavigate();
+
   const teamMembers = [
     {
       name: "Justin Chacko",
       role: "Founder & CEO",
-      experience: "15+ years in automotive industry",
+      experience: "10+ years in automotive industry",
       imageColor: "bg-blue-100",
       quote: "Driven by innovation and customer satisfaction."
     },
     {
       name: "Varun Nishad",
       role: "Chief Operations Officer",
-      experience: "12+ years in logistics",
+      experience: "7+ years in logistics",
       imageColor: "bg-sky-100",
       quote: "Ensuring seamless journeys, every time."
     },
     {
       name: "Aifaz Khan",
       role: "Technology Director",
-      experience: "10+ years in hospitality",
+      experience: "7+ years pioneering tech solutions in luxury hospitality",
       imageColor: "bg-cyan-100",
       quote: "Your journey is our priority."
     },
     {
       name: "Payal Bahadur",
       role: "Customer Experience Head",
-      experience: "8+ years in automotive",
+      experience: "5+ years in automotive",
       imageColor: "bg-lightBlue-100",
       quote: "Maintaining excellence in every vehicle."
     }
@@ -94,12 +98,12 @@ const AboutPage = () => {
   ];
 
   const stats = [
-    { icon: <Car size={24} />, value: "500+", label: "Vehicles" },
-    { icon: <Users size={24} />, value: "50,000+", label: "Happy Customers" },
-    { icon: <MapPin size={24} />, value: "25+", label: "Cities" },
-    { icon: <Star size={24} />, value: "4.8/5", label: "Customer Rating" },
+    { icon: <Car size={24} />, value: "300+", label: "Vehicles" },
+    { icon: <Users size={24} />, value: "5,000+", label: "Happy Customers" },
+    { icon: <MapPin size={24} />, value: "6+", label: "Cities" },
+    { icon: <Star size={24} />, value: "4.7/5", label: "Customer Rating" },
     { icon: <Clock size={24} />, value: "24/7", label: "Support" },
-    { icon: <TrendingUp size={24} />, value: "98%", label: "Satisfaction Rate" }
+    { icon: <TrendingUp size={24} />, value: "95%", label: "Satisfaction Rate" }
   ];
 
   return (
@@ -282,62 +286,7 @@ const AboutPage = () => {
         </div>
       </div>
 
-      {/* Milestones Timeline */}
-      <div className="container py-5">
-        <div className="text-center mb-5">
-          <h2 className="display-6 fw-bold text-dark mb-3">
-            Our <span className="text-primary">Journey</span>
-          </h2>
-          <p className="lead text-muted">Key milestones in our growth story</p>
-        </div>
-        <div className="position-relative">
-          {/* Timeline line */}
-          <div className="position-absolute top-50 start-0 end-0 h-1 bg-opacity-25 d-none d-lg-block"></div>
-          
-          <div className="row">
-            {milestones.map((milestone, index) => (
-              <div key={index} className="col-12 col-lg mb-4 mb-lg-0">
-                <div className="text-center position-relative">
-                  <div className="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '60px', height: '60px' }}>
-                    <span className="fw-bold">{milestone.year}</span>
-                  </div>
-                  <div className="bg-white p-3 rounded shadow-sm">
-                    <h5 className="text-dark fw-bold mb-2">{milestone.title}</h5>
-                    <p className="text-muted small mb-0">{milestone.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Awards & Recognition */}
-      <div className="text-white py-5" style={{backgroundColor:'rgb(2 40 124'}}>
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-12 col-lg-4 text-center mb-4 mb-lg-0">
-              <Trophy size={64} className="mb-3" />
-              <h3 className="h2 fw-bold">Awards & Recognition</h3>
-            </div>
-            <div className="col-12 col-lg-8">
-              <div className="row g-3">
-                <div className="col-12 col-md-6">
-                  <div className="bg-white bg-opacity-10 rounded-3 p-3">
-                    <div className="d-flex align-items-center">
-                      <Award size={24} className="me-3" />
-                      <div>
-                        <h4 className="h5 mb-1">Best Car Rental Service 2025</h4>
-                        <p className="small mb-0 opacity-90">Auto Excellence Awards</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+     
 
       {/* Commitment Section */}
       <div className="container py-5">
@@ -397,7 +346,7 @@ const AboutPage = () => {
                 Join thousands of satisfied customers who trust Xlentcar for their journeys.
               </p>
               <div className="d-flex flex-wrap gap-3 justify-content-center">
-                <button className="btn btn-primary px-4 py-3">
+                <button className="btn btn-primary px-4 py-3" onClick={() => navigate('/deals')}>
                   <Car size={20} className="me-2" />
                   Book Your Ride
                 </button>
