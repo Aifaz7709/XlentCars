@@ -212,12 +212,13 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                 marginBottom: '1.5rem'
               }}>
                 {[
+                    { name: "Chandrapur", code: "CHD" },
+                    { name: "Hyderabad", code: "HYD" },
                   { name: "Bengaluru", code: "BLR" },
                   { name: "Chennai", code: "CHE" },
-                  { name: "Hyderabad", code: "HYD" },
                   { name: "Nagpur", code: "NAG" },
                   { name: "Pune", code: "PUN" },
-                  { name: "Mumbai", code: "BOM" }
+                
                 ].map((city, index) => (
                   <div
                     key={index}
@@ -241,7 +242,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                       alignItems: 'center'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgb(2, 40, 124)';
+                      e.currentTarget.style.backgroundColor = 'rgb(43, 107, 245)';
                       e.currentTarget.style.borderColor = 'rgb(2, 40, 124)';
                       e.currentTarget.style.transform = 'scale(1.02)';
                     }}

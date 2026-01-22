@@ -70,7 +70,7 @@ const HeadingsSection = () => {
     color: "#fff",
     fontSize: "clamp(28px, 8vw, 48px)",
     lineHeight: "1",
-    marginBottom: "10px",
+    marginBottom: "5px",
     fontWeight: "700",
     textAlign: "left"
   }}
@@ -183,9 +183,9 @@ const HeadingsSection = () => {
     borderRadius: '10px',
     backdropFilter: 'blur(10px)'
   }}>
-    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>50,000+</h3>
+    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>3,000+</h3>
     <h4 className="stat-value" style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Happy Customers</h4>
-    <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Served This Year</p>
+    <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Served</p>
   </div>
 
   <div className="stat-card" style={{ 
@@ -195,7 +195,7 @@ const HeadingsSection = () => {
     borderRadius: '10px',
     backdropFilter: 'blur(10px)'
   }}>
-    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>200+</h3>
+    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>6+</h3>
     <h4 className="stat-value" style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Locations</h4>
     <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Nationwide Coverage</p>
   </div>
@@ -219,9 +219,9 @@ const HeadingsSection = () => {
     borderRadius: '10px',
     backdropFilter: 'blur(10px)'
   }}>
-    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>4.8/5</h3>
+    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>4.7/5</h3>
     <h4 className="stat-value" style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Customer Rating</h4>
-    <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Based on 10,000+ Reviews</p>
+    <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Based on 1,000+ Reviews</p>
   </div>
 
   <div className="stat-card" style={{ 
@@ -231,9 +231,9 @@ const HeadingsSection = () => {
     borderRadius: '10px',
     backdropFilter: 'blur(10px)'
   }}>
-    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>500+</h3>
+    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>100+</h3>
     <h4 className="stat-value" style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Vehicles</h4>
-    <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Modern Fleet Available</p>
+    <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}> Fleet Available</p>
   </div>
 </div>
 

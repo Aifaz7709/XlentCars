@@ -1,13 +1,49 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import './Testimonials.css'
 import UserData from "../CustForm/UserData";
 
 const Testimonials = () => {
 
   const [showForm, setShowForm] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+
+
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => {
+        setShowPopup(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
 
   return (
 <>
+<>
+      <button
+        className="cta-btn secondary"
+        onClick={() => setShowPopup(true)}
+      >
+        Download App
+      </button>
+
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <button
+              className="popup-close"
+              onClick={() => setShowPopup(false)}
+            >
+              ×
+            </button>
+
+            <h3>🚧 App Under Construction</h3>
+            <p>We’re cooking something awesome. Coming very soon.</p>
+          </div>
+        </div>
+      )}
+    </>
 
 
     <section className="testimonials-section" id="testimonials">
@@ -26,11 +62,11 @@ const Testimonials = () => {
           
           <div className="header-stats">
             <div className="stat-item">
-              <div className="stat-number">4.8/5</div>
+              <div className="stat-number">4.7/5</div>
               <div className="stat-label">Customer Rating</div>
             </div>
             <div className="stat-item">
-              <div className="stat-number">15K+</div>
+              <div className="stat-number">3K+</div>
               <div className="stat-label">Happy Renters</div>
             </div>
             <div className="stat-item">
@@ -52,11 +88,11 @@ const Testimonials = () => {
             <div className="author-info">
               <img 
                 src="/img/webp/person11.webp" 
-                alt="Aifaz Khan"
+                alt="Rizwan Khan"
                 className="author-avatar"
               />
               <div className="author-details">
-                <div className="author-name">Aifaz Khan</div>
+                <div className="author-name">Rizwan Khan</div>
                 <div className="author-role">Software Engineer</div>
                 <div className="company-badge">Regular Customer</div>
               </div>
@@ -124,7 +160,7 @@ const Testimonials = () => {
               
               <div className="author-section">
                 <img 
-                  src={testimonial.img} 
+                  // src={testimonial.img} 
                   alt={testimonial.name}
                   className="author-image"
                 />
@@ -152,7 +188,7 @@ const Testimonials = () => {
             <p>Join thousands of satisfied customers across India</p>
             <div className="cta-buttons">
               <button className="cta-btn primary"      onClick={() => setShowForm(true)} >Book Your Car Now</button>
-              <button className="cta-btn secondary">Download App</button>
+              <button className="cta-btn secondary"  onClick={() => setShowPopup(true)}>Download App</button>
             </div>
           </div>
         </div>
