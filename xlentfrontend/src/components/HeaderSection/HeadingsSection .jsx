@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './HeadingsSection.css';
+import ContactUsCard from '../Popups/ContactUsCard';
 
 const HeadingsSection = () => {
   const [showForm, setShowForm] = useState(false);
@@ -170,7 +171,7 @@ const HeadingsSection = () => {
   padding: '20px 10px 0',
   background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
   borderRadius: '15px',
-  margin: '40px 0'
+  margin: '30px 0'
 }}>
  
 
@@ -210,17 +211,7 @@ const HeadingsSection = () => {
     <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Always Here For You</p>
   </div>
 
-  <div className="stat-card" style={{ 
-    textAlign: 'center', 
-    padding: '20px',
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '10px',
-    backdropFilter: 'blur(10px)'
-  }}>
-    <h3 className="stat-category" style={{ color: '#ff6b35', fontSize: '14px', fontWeight: '600', margin: '0 0 10px 0' }}>4.7/5</h3>
-    <h4 className="stat-value" style={{ color: '#fff', fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0' }}>Rating</h4>
-    <p className="stat-description" style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', margin: '0' }}>Based on 1,000+ Reviews</p>
-  </div>
+ 
 
   <div className="stat-card" style={{ 
     textAlign: 'center', 
@@ -237,114 +228,7 @@ const HeadingsSection = () => {
 
    {/* Form */}
        {showForm && (
-        <div className="modern-modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modern-modal-container" onClick={(e) => e.stopPropagation()}>
-            <div className="modern-modal-content">
-              {/* Animated Background */}
-              <div className="modal-bg-shapes">
-                <div className="shape shape-1"></div>
-                <div className="shape shape-2"></div>
-                <div className="shape shape-3"></div>
-              </div>
-              
-              {/* Header */}
-              <div className="modal-header">
-              
-                <h2 className="modal-title">Get started with XLent</h2>
-             
-                <button 
-                  className="modal-close-btn"
-                  onClick={() => setShowForm(false)}
-                >
-                  <span style={{paddingBottom: '5px'}}>×</span>
-                </button>
-              </div>
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="modern-form">
-                <div className="form-group floating-group">
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                    className="floating-input"
-                    placeholder=" "
-                  />
-                  <label htmlFor="name" className="floating-label">Your Name</label>
-                  <div className="input-underline"></div>
-                </div>
-
-   <div className="form-group floating-group">
-                  <input
-                    type="tel"
-                    id="phone_no"
-                    name="phone_no"
-                    value={formData.phone_no}
-                    onChange={handleInputChange}
-                    required
-                    className="floating-input"
-                    placeholder=" "
-                  />
-                  <label htmlFor="phone_no" className="floating-label">Your phone_no</label>
-                  <div className="input-underline"></div>
-                </div>
-
-    <div className="form-group floating-group">
-                  <input
-                    type="text"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="floating-input"
-                    placeholder=" "
-                  />
-                  <label htmlFor="email" className="floating-label">Email</label>
-                  <div className="input-underline"></div>
-                </div>
-
-              <div>
-
-</div>
-
-                <button 
-                  type="submit" 
-                  className={`submit-btn ${isSubmitting ? 'submitting' : ''}`}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="spinner"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <span>Get Started Now</span>
-                      <svg className="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M8 1L14.5 8L8 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M14.5 8H1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Footer */}
-              <div className="modal-footer">
-                <div className="security-badge">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M8 1L14.5 4V7C14.5 10.5 12 13.5 8 15C4 13.5 1.5 10.5 1.5 7V4L8 1Z" fill="currentColor"/>
-                  </svg>
-                  <span>Your information is secure and encrypted</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+       <ContactUsCard onClose={()=> setShowForm(false)}/>
       )}
       {/* Action Buttons */}
     </section>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { LogOut, User, Settings } from "lucide-react";
+import LocationModal from "../LocationModal/LocationModal";
 
 const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
   const [showInvestingDropdown, setShowInvestingDropdown] = useState(false);
@@ -9,7 +10,8 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userData, setUserData] = useState(null);
-  
+  const [showLocationModal, setShowLocationModal] = useState(false);
+
   const investingRef = useRef(null);
   const borrowRef = useRef(null);
   const userDropdownRef = useRef(null);
@@ -133,11 +135,8 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                   <li className="nav-item dropdown" ref={borrowRef}>
                     <a 
                       className="nav-link dropdown-toggle nav-link-custom" 
-                      href="#locations"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setShowBorrowDropdown(!showBorrowDropdown);
-                      }}
+                      onClick={() => setShowLocationModal(true)}
+
                       style={{ 
                         cursor: 'pointer',
                         color: 'white'
@@ -145,148 +144,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                     >
                       Locations
                     </a>
-                    {showBorrowDropdown && (
-              <div 
-              style={{
-                position: 'fixed',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                boxShadow: '0 25px 50px rgba(2, 40, 124, 0.2)',
-                padding: '1.5rem',
-                width: 'calc(100vw - 2rem)',
-                maxWidth: '400px',
-                maxHeight: '80vh',
-                overflowY: 'auto',
-                border: '1px solid rgba(2, 40, 124, 0.1)',
-                zIndex: 1000
-              }}
-            >
-              {/* Header with close button */}
-              <div style={{ 
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1.5rem'
-              }}>
-                <div>
-                  <h3 style={{ 
-                    margin: 0,
-                    fontSize: '1.25rem',
-                    fontWeight: 700,
-                    color: 'rgb(2, 40, 124)'
-                  }}>
-                    Select Location
-                  </h3>
-                  <p style={{
-                    margin: '0.25rem 0 0 0',
-                    fontSize: '0.875rem',
-                    color: '#666'
-                  }}>
-                    Currently serving 6 cities
-                  </p>
-                </div>
-                <button
-                  onClick={closeMenu}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    fontSize: '1.5rem',
-                    color: '#999',
-                    cursor: 'pointer',
-                    padding: '0.5rem',
-                    lineHeight: 1
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-              
-              {/* Responsive grid */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                gap: '0.75rem',
-                marginBottom: '1.5rem'
-              }}>
-                {[
-                    { name: "Chandrapur", code: "CHD" },
-                    { name: "Hyderabad", code: "HYD" },
-                  { name: "Bengaluru", code: "BLR" },
-                  { name: "Chennai", code: "CHE" },
-                  { name: "Nagpur", code: "NAG" },
-                  { name: "Pune", code: "PUN" },
-                
-                ].map((city, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      closeMenu();
-                      console.log(`Selected: ${city.name}`);
-                    }}
-                    style={{
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '12px',
-                      padding: '1rem',
-                      cursor: 'pointer',
-                      border: '2px solid transparent',
-                      transition: 'all 0.2s ease',
-                      textAlign: 'center',
-                      position: 'relative',
-                      minHeight: '80px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgb(43, 107, 245)';
-                      e.currentTarget.style.borderColor = 'rgb(2, 40, 124)';
-                      e.currentTarget.style.transform = 'scale(1.02)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f8f9fa';
-                      e.currentTarget.style.borderColor = 'transparent';
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                  >
-                    <div style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      color: 'rgb(2, 40, 124)',
-                      marginBottom: '0.25rem',
-                      transition: 'color 0.2s ease'
-                    }}
-                    className="city-code"
-                    >
-                      {city.code}
-                    </div>
-                    <div style={{
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      color: 'rgb(2, 40, 124)',
-                      transition: 'color 0.2s ease'
-                    }}
-                    className="city-name"
-                    >
-                      {city.name}
-                    </div>
-                    
-                    <style>{`
-                      div[onmouseenter] .city-code,
-                      div[onmouseenter] .city-name {
-                        color: white !important;
-                      }
-                    `}</style>
-                  </div>
-                ))}
-              </div>
-              
-           
-            </div>
-                    )}
+                  
                   </li>
 
                   <li className="nav-item">
@@ -369,7 +227,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                     >
                       <div className="px-3 py-2 border-bottom">
                         <div className="small text-muted">Signed in as</div>
-                        <div className="fw-semibold text-truncate">{userData?.email || 'user@example.com'}</div>
+                        <div className="fw-semibold text-truncate">{userData?.name || 'user@example.com'}</div>
                       </div>
                       
                       {/* <Link to="/dashboard" className="dropdown-item dropdown-item-custom d-flex align-items-center" >
@@ -456,13 +314,21 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                       </Link>
                     </button>
                   </li>
+             
                 </>
               )}
             </ul>
           </div>
         </div>
       </nav>
-      
+      <LocationModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onSelectLocation={(city) => {
+          console.log('Selected city:', city);
+          // Save to state, localStorage, or whatever you need
+        }}
+      />
       {/* Add CSS for dropdown arrow animation */}
       <style jsx>{`
         .rotate-180 {

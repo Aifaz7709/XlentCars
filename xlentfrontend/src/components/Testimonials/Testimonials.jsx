@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import './Testimonials.css'
 import UserData from "../CustForm/UserData";
+import ContactUsCard from "../Popups/ContactUsCard";
 
 const Testimonials = () => {
 
@@ -196,7 +197,7 @@ const Testimonials = () => {
     </section>
 
     {showForm && (
-  <UserData onClose={() => setShowForm(false)} />
+  <ContactUsCard onClose={() => setShowForm(false)} />
 )}
 
 
