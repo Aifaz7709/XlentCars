@@ -22,8 +22,9 @@ import {
   ArrowRight,
   Phone
 } from "lucide-react";
+import Footer from "../Footer/Footer";
 
-const SpecialDeals = () => {
+const   SpecialDeals = () => {
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [sortBy, setSortBy] = useState("popularity");
   const [searchQuery, setSearchQuery] = useState("");
@@ -622,7 +623,7 @@ const SpecialDeals = () => {
       <div className="text-white py-5" style={{ margin:'30px',  borderRadius: "15px",  background: "linear-gradient(135deg, #02287c 0%, #0d6efd 100%)",}}>
         <div className="container">
           <div className="row align-items-center">
-            <div className="col-12 col-lg-8">
+            <div className="col-8 col-lg-8">
               <h3 className="h2 fw-bold mb-3">Need Help Choosing?</h3>
               <p className="mb-0" style={{ opacity: '0.9' }}>
                 Our rental experts are available 24/7 to help you pick the perfect deal.
@@ -637,6 +638,8 @@ const SpecialDeals = () => {
           </div>
         </div>
       </div>
+
+      <Footer/>
     </div>
   );
 };

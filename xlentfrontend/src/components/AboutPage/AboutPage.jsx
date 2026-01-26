@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
   Award,
   Shield,
@@ -26,8 +26,10 @@ import Footer from "../Footer/Footer";
 import { useNavigate } from 'react-router-dom';
 
 import './About.css'
+import ContactModal from "../LocationModal/ContactModal";
 const AboutPage = () => {
   const navigate = useNavigate();
+  const [showContactModal, setShowContactModal] = useState(false);
 
   const teamMembers = [
     {
@@ -121,11 +123,12 @@ const AboutPage = () => {
                 for memorable journeys across Tamil Nadu and beyond.
               </p>
               <div className="d-flex flex-wrap gap-3">
-                <button className="btn btn-light text-primary px-4">
+                <button className="btn btn-light text-primary px-4"  onClick={()=>navigate('/deals')}>
                   <ArrowRight size={18} className="me-2" />
                   Explore Our Fleet
                 </button>
-                <button className="btn btn-outline-light px-4">
+                <button className="btn btn-outline-light px-4"    onClick={() => setShowContactModal(true)}
+       >
                   Contact Us
                 </button>
               </div>
@@ -160,7 +163,8 @@ const AboutPage = () => {
           </div>
         </div>
       </div>
-
+      {showContactModal && ( <ContactModal    isOpen={showContactModal} 
+        onClose={() => setShowContactModal(false)}/> )}
       {/* Our Story */}
       <div className="container py-5">
         <div className="row align-items-center">

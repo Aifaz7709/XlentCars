@@ -12,8 +12,8 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
     { id: 2, name: "Hyderabad", code: "HYD", state: "Telangana", airport: true, popular: true },
     { id: 3, name: "Bengaluru", code: "BLR", state: "Karnataka", airport: true, popular: true },
     { id: 4, name: "Chennai", code: "CHE", state: "Tamil Nadu", airport: true, popular: true },
-    { id: 5, name: "Nagpur", code: "NAG", state: "Maharashtra", airport: true, popular: false },
-    { id: 6, name: "Pune", code: "PUN", state: "Maharashtra", airport: true, popular: true },
+    { id: 5, name: "Nagpur", code: "NAG", state: "Maharashtra", airport: true, popular: true },
+    { id: 6, name: "Pune", code: "PUN", state: "Maharashtra", airport: true, popular: false },
     { id: 7, name: "Goa", code: "GOA", state: "Goa", airport: true, popular: true },
     { id: 9, name: "Chandrapur", code: "CND", state: "Maharashtra", airport: false, popular: true },
     { id: 10, name: "Kolkata", code: "CCU", state: "West Bengal", airport: true, popular: false },
@@ -127,7 +127,7 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
         </div>
 
         {/* Search Bar */}
-        <div className="search-container">
+        {/* <div className="search-container">
           <Search size={20} className="search-icon" />
           <input
             type="text"
@@ -142,7 +142,7 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
               <X size={16} />
             </button>
           )}
-        </div>
+        </div> */}
 
         {/* Scrollable Content Area */}
         <div className="modal-scrollable-content">
@@ -172,12 +172,7 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
                   >
                     <div className="popular-city-header">
                       <div className="city-code">{city.code}</div>
-                      {city.airport && (
-                        <span className="airport-tag">
-                          <Star size={12} />
-                          Airport
-                        </span>
-                      )}
+                    
                     </div>
                     <div className="city-name">{city.name}</div>
                     <div className="city-state">{city.state}</div>

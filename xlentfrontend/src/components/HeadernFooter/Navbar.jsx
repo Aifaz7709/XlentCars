@@ -287,7 +287,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                     </button>
                   </li>
 
-                  <li className="nav-item nav-button-item">
+                  {/* <li className="nav-item nav-button-item">
                     <button 
                       className="btn signup-btn nav-btn-custom"
                       style={{
@@ -313,7 +313,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
                         Register
                       </Link>
                     </button>
-                  </li>
+                  </li> */}
              
                 </>
               )}

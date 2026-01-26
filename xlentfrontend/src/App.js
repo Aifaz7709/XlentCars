@@ -77,13 +77,11 @@ function AppRoutes({ theme, toggleTheme }) {
         <Routes>
           <Route
             path="/"
-            element={
-              <ProtectedRoute
-                isAuthenticated={isAuthenticated}
-              >
-                <Dashboard />
-              </ProtectedRoute>
-            }
+           
+           
+              
+            element=    { <Dashboard />}
+      
           />
 
           <Route
@@ -107,7 +105,7 @@ function AppRoutes({ theme, toggleTheme }) {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/deals" element={<SpecialDeals />} />
           <Route path="/terms" element={<TermsConditionsPage />} />
-<Route path="/book/:carId" element={<BookingPage />} />
+            <Route path="/book/:carId" element={<BookingPage />} />
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
