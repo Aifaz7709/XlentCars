@@ -165,7 +165,7 @@ const Login = ({ setIsAuthenticated }) => {
     if (Object.keys(validationErrors).length === 0) {
       setIsLoading(true);
       try {
-        const apiBase = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+        const apiBase = process.env.REACT_APP_API_BASE_URL ;
 
         const res = await fetch(`${apiBase}/api/auth/login`, {
           method: 'POST',

@@ -84,6 +84,10 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (!authData.session || !authData.session.access_token) {
+      return res.status(401).json({ message: 'Failed to create session. Please try again.' });
+    }
+
     const userId = authData.user.id;
     const { data: profile } = await supabase
       .from('profiles')
