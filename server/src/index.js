@@ -15,6 +15,7 @@ app.use(cors({
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  exposedHeaders: ['set-cookie'] 
 }));
 
 app.options('*', cors());

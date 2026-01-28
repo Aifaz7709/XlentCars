@@ -170,6 +170,7 @@ const Login = ({ setIsAuthenticated }) => {
         const res = await fetch(`${apiBase}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ 
             email: formData.username,
             password: formData.password 
@@ -184,6 +185,8 @@ const Login = ({ setIsAuthenticated }) => {
         
         if (data.token) {
           localStorage.setItem('xlent_token', data.token);
+          localStorage.setItem('xlent_refresh_token', data.refresh_token); // Store refresh token too
+
           localStorage.setItem('xlent_user', JSON.stringify({
             id: data.user?.id || '1',
             username: formData.username,
