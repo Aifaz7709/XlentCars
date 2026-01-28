@@ -9,7 +9,7 @@ const AddCar = () => {
   const [formData, setFormData] = useState({
     car_model: '',
     car_number: '',
-      car_location: ''
+    car_location: ''
   });
   const [photoFiles, setPhotoFiles] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);

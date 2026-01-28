@@ -88,7 +88,7 @@ router.post('/', uploadMiddleware, async (req, res) => {
         car_location: req.body.car_location?.trim() || null,
         photos: photoUrls,
         created_at: new Date().toISOString(),
-        user_id: user.id 
+
       }])
       .select()
       .single();
