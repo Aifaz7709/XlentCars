@@ -54,6 +54,41 @@ const AddCar = () => {
     fetchCars();
   }, [dispatch]);
 
+  // Add this function to refresh the token
+const refreshToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem('xlent_refresh_token');
+    const apiUrl = process.env.REACT_APP_API_BASE_URL 
+      ? `${process.env.REACT_APP_API_BASE_URL}/api/auth/refresh`
+      : 'http://localhost:8080/api/auth/refresh';
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to refresh token');
+    }
+
+    const data = await response.json();
+    localStorage.setItem('xlent_token', data.access_token);
+    if (data.refresh_token) {
+      localStorage.setItem('xlent_refresh_token', data.refresh_token);
+    }
+    return data.access_token;
+  } catch (err) {
+    console.error('Token refresh failed:', err);
+    // Redirect to login or show login modal
+    localStorage.removeItem('xlent_token');
+    localStorage.removeItem('xlent_refresh_token');
+    window.location.href = '/login';
+    throw err;
+  }
+};
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -95,67 +130,73 @@ const AddCar = () => {
     
     const trimmedModel = formData.car_model.trim();
     const trimmedNumber = formData.car_number.trim();
-
+  
     if (!trimmedModel || !trimmedNumber) {
       setMessage({ type: 'error', text: 'Please fill in car model and car number' });
       return;
     }
-
+  
     setIsLoading(true);
     setMessage({ type: '', text: '' });
-
+  
     try {
-      const token = localStorage.getItem('xlent_token');
+      let token = localStorage.getItem('xlent_token');
       if (!token) {
         throw new Error('Please log in to add a car');
       }
-
-      // Create FormData to handle file uploads
-      const formDataToSend = new FormData();
-      formDataToSend.append('car_model', trimmedModel);
-      formDataToSend.append('car_number', trimmedNumber);
-      
-      // Append each photo file
-      photoFiles.forEach((file, index) => {
-        formDataToSend.append(`photos`, file);
-      });
-
-      console.log('Sending FormData with:');
-      console.log('- car_model:', trimmedModel);
-      console.log('- car_number:', trimmedNumber);
-      console.log('- photos:', photoFiles.length);
-
+  
       const apiUrl = process.env.REACT_APP_API_BASE_URL 
         ? `${process.env.REACT_APP_API_BASE_URL}/api/cars`
         : 'http://localhost:8080/api/cars';
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-          // Don't set Content-Type header - browser will set it with boundary
-        },
-        body: formDataToSend
-      });
-
+  
+      const sendRequest = async (currentToken) => {
+        const formDataToSend = new FormData();
+        formDataToSend.append('car_model', trimmedModel);
+        formDataToSend.append('car_number', trimmedNumber);
+        
+        photoFiles.forEach((file) => {
+          formDataToSend.append('photos', file);
+        });
+  
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`
+          },
+          body: formDataToSend
+        });
+  
+        // If token expired, try to refresh it
+        if (response.status === 401) {
+          const errorData = await response.json().catch(() => ({}));
+          if (errorData.error?.includes('token') || errorData.error?.includes('expired')) {
+            console.log('Token expired, attempting refresh...');
+            const newToken = await refreshToken();
+            // Retry with new token
+            return sendRequest(newToken);
+          }
+        }
+  
+        return response;
+      };
+  
+      const response = await sendRequest(token);
       const data = await response.json();
-
+  
       if (!response.ok) {
         throw new Error(data.error || data.message || `Failed to add car: ${response.status}`);
       }
-
+  
       // Success
       setMessage({ type: 'success', text: data.message || 'Car added successfully!' });
       
-      // Update local state with new car
       if (data.car) {
         setLocalCars(prev => [data.car, ...prev]);
         dispatch(addCar(data.car));
       } else {
-        // Refresh the list
         fetchCars();
       }
-
+  
       // Reset form
       setFormData({ car_model: '', car_number: '' });
       setPhotoFiles([]);
@@ -170,7 +211,7 @@ const AddCar = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
 
   const deleteCar = async (carId) => {
     if (!window.confirm('Are you sure you want to delete this car?')) return;

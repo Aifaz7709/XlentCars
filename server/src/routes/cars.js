@@ -1,17 +1,16 @@
-// routes/cars.js
 const express = require('express');
 const router = express.Router();
 const supabase = require('../../supabaseClient');
 const multer = require('multer');
 const path = require('path');
 
-// Configure multer for file uploads
-const storage = multer.memoryStorage(); // Store files in memory
+// ========== MULTER SETUP ==========
+const storage = multer.memoryStorage();
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB per file
-    files: 5 // Max 5 files
+    fileSize: 5 * 1024 * 1024,
+    files: 5
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
@@ -19,206 +18,111 @@ const upload = multer({
     const mimetype = allowedTypes.test(file.mimetype);
     
     if (mimetype && extname) {
-      return cb(null, true);
+      cb(null, true);
     } else {
       cb(new Error('Only image files are allowed'));
     }
   }
 });
 
-// Multer middleware that handles everything
-// .any() captures all files and fields
 const uploadMiddleware = upload.any();
 
-// Authentication middleware
+// ========== AUTH MIDDLEWARE ==========
 const authenticate = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    console.log('Auth header:', authHeader ? 'present' : 'missing');
-    
-    const token = authHeader?.replace('Bearer ', '');
+    const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) {
-      console.log('No token provided');
       return res.status(401).json({ error: 'Authentication required' });
     }
-    
-    console.log('Authenticating user with token...');
+
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
-    if (error) {
-      console.error('Supabase auth error:', error);
-      return res.status(401).json({ error: 'Invalid token: ' + error.message });
-    }
-    
-    if (!user) {
-      console.log('No user found for token');
+    if (error || !user) {
       return res.status(401).json({ error: 'Invalid token' });
     }
-    
-    console.log('User authenticated:', user.id);
+
     req.user = user;
     next();
   } catch (err) {
-    console.error('Authentication error:', err);
-    return res.status(500).json({ error: 'Authentication failed: ' + err.message });
+    return res.status(500).json({ error: 'Authentication failed' });
   }
 };
 
-// Preflight
-router.options('*', (req, res) => {
-  res.sendStatus(204);
-});
+// ========== ROUTES ==========
 
-// CREATE new car with photo uploads
-// Note: uploadMiddleware must come BEFORE authenticate to parse body
+// CREATE CAR
 router.post('/', uploadMiddleware, authenticate, async (req, res) => {
   try {
-    console.log('\n========== POST /api/cars START ==========');
-    console.log('Timestamp:', new Date().toISOString());
-    console.log('User ID:', req.user?.id);
-    console.log('Content-Type:', req.get('content-type'));
+    // Get form fields from req.body (NOT from files)
+    const car_model = req.body.car_model?.trim() || '';
+    const car_number = req.body.car_number?.trim() || '';
     
-    // Log raw files array
-    console.log('\n--- RAW req.files ---');
-    console.log('req.files type:', Array.isArray(req.files) ? 'Array' : typeof req.files);
-    console.log('req.files length:', req.files?.length);
-    if (req.files && Array.isArray(req.files)) {
-      console.log('req.files structure:');
-      for (let i = 0; i < req.files.length; i++) {
-        const f = req.files[i];
-        console.log(`  [${i}] fieldname="${f.fieldname}", originalname="${f.originalname}", size=${f.size}, mimetype="${f.mimetype}", buffer.length=${f.buffer?.length}`);
-      }
+    // Get uploaded photos from req.files
+    const photosArray = (req.files || []).filter(file => file.fieldname === 'photos');
+
+    // Validation
+    if (!car_model) {
+      return res.status(400).json({ error: 'Car model is required' });
     }
-    
-    // Process fields
-    console.log('\n--- PROCESSING FIELDS ---');
-    let modelStr = '';
-    let numberStr = '';
-    const photosArray = [];
-    
-    if (req.files && Array.isArray(req.files)) {
-      for (const file of req.files) {
-        console.log(`Processing field: "${file.fieldname}"`);
-        
-        if (file.fieldname === 'car_model') {
-          modelStr = file.buffer.toString('utf8').trim();
-          console.log(`  → Extracted car_model: "${modelStr}"`);
-        } else if (file.fieldname === 'car_number') {
-          numberStr = file.buffer.toString('utf8').trim();
-          console.log(`  → Extracted car_number: "${numberStr}"`);
-        } else if (file.fieldname === 'photos') {
-          photosArray.push(file);
-          console.log(`  → Added photo: ${file.originalname}`);
-        }
-      }
-    } else {
-      console.log('❌ req.files is not an array or is undefined!');
-      console.log('req.files value:', req.files);
+    if (!car_number) {
+      return res.status(400).json({ error: 'Car number is required' });
     }
 
-    console.log('\n--- VALIDATION ---');
-    console.log(`car_model: "${modelStr}" (length: ${modelStr.length})`);
-    console.log(`car_number: "${numberStr}" (length: ${numberStr.length})`);
-    console.log(`photos: ${photosArray.length} files`);
-
-    // Validate
-    if (!modelStr) {
-      console.log('❌ VALIDATION FAILED: car_model is empty');
-      return res.status(400).json({ error: 'Missing required fields', debug: { modelStr, numberStr, filesCount: photosArray.length } });
-    }
-    
-    if (!numberStr) {
-      console.log('❌ VALIDATION FAILED: car_number is empty');
-      return res.status(400).json({ error: 'Missing required fields', debug: { modelStr, numberStr, filesCount: photosArray.length } });
-    }
-
-    console.log(`✓ VALIDATION PASSED`);
-    
-    // Check if car number already exists
-    console.log('\n--- CHECKING DUPLICATES ---');
-    const { data: existingCar, error: checkError } = await supabase
+    // Check for duplicate car number
+    const { data: existingCar } = await supabase
       .from('cars')
       .select('id')
-      .eq('car_number', numberStr)
+      .eq('car_number', car_number)
       .single();
 
-    if (checkError) {
-      console.log('Check query error (expected if not found):', checkError.message);
-    }
-    
     if (existingCar) {
-      console.log('❌ Car number already exists');
       return res.status(400).json({ error: 'Car number already exists' });
     }
-    console.log('✓ Car number is unique');
 
-    // Upload photos to Supabase Storage
-    console.log('\n--- UPLOADING PHOTOS ---');
+    // Upload photos to storage
     const photoUrls = [];
-    
-    for (let i = 0; i < photosArray.length; i++) {
-      const file = photosArray[i];
+    for (const file of photosArray) {
       const fileExt = path.extname(file.originalname);
       const fileName = `${req.user.id}/${Date.now()}_${Math.random().toString(36).substr(2, 9)}${fileExt}`;
       
-      console.log(`Uploading photo [${i}]: ${file.originalname} (${file.size} bytes)`);
       const { error: uploadError } = await supabase.storage
         .from('car-photos')
         .upload(fileName, file.buffer, {
-          contentType: file.mimetype,
-          cacheControl: '3600'
+          contentType: file.mimetype
         });
 
-      if (uploadError) {
-        console.error(`  ❌ Upload error: ${uploadError.message}`);
-        continue;
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('car-photos')
+          .getPublicUrl(fileName);
+        photoUrls.push(publicUrl);
       }
-      
-      const { data: { publicUrl } } = supabase.storage
-        .from('car-photos')
-        .getPublicUrl(fileName);
-      
-      console.log(`  ✓ Uploaded to: ${publicUrl}`);
-      photoUrls.push(publicUrl);
     }
 
-    console.log('\n--- INSERTING TO DATABASE ---');
-    console.log(`Data to insert:`, JSON.stringify({
-      user_id: req.user.id,
-      car_model: modelStr,
-      car_number: numberStr,
-      photos: photoUrls,
-      created_at: new Date().toISOString()
-    }, null, 2));
-    
-    const { data, error } = await supabase
+    // Insert car into database
+    const { data, error: insertError } = await supabase
       .from('cars')
       .insert([{
         user_id: req.user.id,
-        car_model: modelStr,
-        car_number: numberStr,
+        car_model,
+        car_number,
         photos: photoUrls,
         created_at: new Date().toISOString()
       }])
       .select()
       .single();
 
-    if (error) {
-      console.error('❌ Database insert error:', error);
-      return res.status(400).json({ error: error.message });
+    if (insertError) {
+      return res.status(400).json({ error: insertError.message });
     }
 
-    console.log(`✓ Car added successfully: ${data.id}`);
-    console.log('========== POST /api/cars END ==========\n');
-    
-    return res.status(201).json({
+    res.status(201).json({
       message: 'Car added successfully',
       car: data
     });
+
   } catch (err) {
-    console.error('❌ CATCH ERROR:', err.message);
-    console.error('Stack:', err.stack);
-    console.log('========== POST /api/cars END (ERROR) ==========\n');
+    console.error('Add car error:', err);
     
     // Handle multer errors
     if (err instanceof multer.MulterError) {
@@ -231,15 +135,12 @@ router.post('/', uploadMiddleware, authenticate, async (req, res) => {
       return res.status(400).json({ error: `File upload error: ${err.message}` });
     }
     
-    return res.status(500).json({ error: 'Internal server error: ' + err.message });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Apply authentication to remaining routes
-router.use(authenticate);
-
-// GET all cars for current user
-router.get('/', async (req, res) => {
+// GET ALL CARS FOR USER
+router.get('/', authenticate, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('cars')
@@ -251,18 +152,16 @@ router.get('/', async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
-    return res.json({ cars: data });
+    res.json({ cars: data || [] });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// GET single car
-router.get('/:id', async (req, res) => {
+// GET SINGLE CAR
+router.get('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
-
     const { data, error } = await supabase
       .from('cars')
       .select('*')
@@ -271,25 +170,21 @@ router.get('/:id', async (req, res) => {
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return res.status(404).json({ error: 'Car not found' });
-      }
-      return res.status(400).json({ error: error.message });
+      return res.status(404).json({ error: 'Car not found' });
     }
 
-    return res.json(data);
+    res.json(data);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// DELETE car
-router.delete('/:id', async (req, res) => {
+// DELETE CAR
+router.delete('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Get car photos first
+    // Get car to delete photos
     const { data: car } = await supabase
       .from('cars')
       .select('photos')
@@ -298,22 +193,18 @@ router.delete('/:id', async (req, res) => {
       .single();
 
     // Delete photos from storage
-    if (car && car.photos && Array.isArray(car.photos)) {
+    if (car?.photos) {
       for (const photoUrl of car.photos) {
-        try {
-          const filePath = photoUrl.split('/car-photos/')[1];
-          if (filePath) {
-            await supabase.storage
-              .from('car-photos')
-              .remove([filePath]);
-          }
-        } catch (err) {
-          console.error('Error deleting photo:', err);
+        const filePath = photoUrl.split('/car-photos/')[1];
+        if (filePath) {
+          await supabase.storage
+            .from('car-photos')
+            .remove([filePath]);
         }
       }
     }
 
-    // Delete car from database
+    // Delete from database
     const { error } = await supabase
       .from('cars')
       .delete()
@@ -321,16 +212,12 @@ router.delete('/:id', async (req, res) => {
       .eq('user_id', req.user.id);
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return res.status(404).json({ error: 'Car not found' });
-      }
-      return res.status(400).json({ error: error.message });
+      return res.status(404).json({ error: 'Car not found' });
     }
 
-    return res.json({ message: 'Car deleted successfully' });
+    res.json({ message: 'Car deleted successfully' });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
