@@ -27,37 +27,12 @@ const upload = multer({
 
 const uploadMiddleware = upload.any();
 
-// ========== AUTH MIDDLEWARE ==========
-const authenticate = async (req, res, next) => {
+// ========== CREATE CAR (NO AUTH REQUIRED) ==========
+router.post('/', uploadMiddleware, async (req, res) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    
-    if (error || !user) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
-    req.user = user;
-    next();
-  } catch (err) {
-    return res.status(500).json({ error: 'Authentication failed' });
-  }
-};
-
-// ========== ROUTES ==========
-
-// CREATE CAR
-router.post('/', uploadMiddleware, authenticate, async (req, res) => {
-  try {
-    // Get form fields from req.body (NOT from files)
+    // Get form data
     const car_model = req.body.car_model?.trim() || '';
     const car_number = req.body.car_number?.trim() || '';
-    
-    // Get uploaded photos from req.files
     const photosArray = (req.files || []).filter(file => file.fieldname === 'photos');
 
     // Validation
@@ -79,11 +54,11 @@ router.post('/', uploadMiddleware, authenticate, async (req, res) => {
       return res.status(400).json({ error: 'Car number already exists' });
     }
 
-    // Upload photos to storage
+    // Upload photos
     const photoUrls = [];
     for (const file of photosArray) {
       const fileExt = path.extname(file.originalname);
-      const fileName = `${req.user.id}/${Date.now()}_${Math.random().toString(36).substr(2, 9)}${fileExt}`;
+      const fileName = `cars/${Date.now()}_${Math.random().toString(36).substr(2, 9)}${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
         .from('car-photos')
@@ -99,12 +74,11 @@ router.post('/', uploadMiddleware, authenticate, async (req, res) => {
       }
     }
 
-    // Insert car into database
+    // Insert car (WITHOUT user_id for now)
     const { data, error: insertError } = await supabase
       .from('cars')
       .insert([{
-        user_id: req.user.id,
-        car_model,
+        car_model,  // Just car details, no user_id
         car_number,
         photos: photoUrls,
         created_at: new Date().toISOString()
@@ -113,6 +87,7 @@ router.post('/', uploadMiddleware, authenticate, async (req, res) => {
       .single();
 
     if (insertError) {
+      console.error('Insert error:', insertError);
       return res.status(400).json({ error: insertError.message });
     }
 
@@ -139,57 +114,67 @@ router.post('/', uploadMiddleware, authenticate, async (req, res) => {
   }
 });
 
-// GET ALL CARS FOR USER
-router.get('/', authenticate, async (req, res) => {
+// ========== GET ALL CARS ==========
+// ========== GET ALL CARS (NO AUTH REQUIRED) ==========
+router.get('/', async (req, res) => {
   try {
+    console.log('GET /api/cars - Fetching all cars');
+    
     const { data, error } = await supabase
       .from('cars')
       .select('*')
-      .eq('user_id', req.user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('Database error:', error);
       return res.status(400).json({ error: error.message });
     }
 
+    console.log(`Found ${data?.length || 0} cars`);
     res.json({ cars: data || [] });
+    
   } catch (err) {
+    console.error('GET /api/cars error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// GET SINGLE CAR
-router.get('/:id', authenticate, async (req, res) => {
+// ========== GET SINGLE CAR (NO AUTH REQUIRED) ==========
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`GET /api/cars/${id} - Fetching single car`);
+    
     const { data, error } = await supabase
       .from('cars')
       .select('*')
       .eq('id', id)
-      .eq('user_id', req.user.id)
       .single();
 
     if (error) {
+      console.error('Car not found:', error);
       return res.status(404).json({ error: 'Car not found' });
     }
 
     res.json(data);
+    
   } catch (err) {
+    console.error('GET /api/cars/:id error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// DELETE CAR
-router.delete('/:id', authenticate, async (req, res) => {
+// ========== DELETE CAR (NO AUTH REQUIRED) ==========
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`DELETE /api/cars/${id} - Deleting car`);
 
     // Get car to delete photos
     const { data: car } = await supabase
       .from('cars')
       .select('photos')
       .eq('id', id)
-      .eq('user_id', req.user.id)
       .single();
 
     // Delete photos from storage
@@ -208,17 +193,17 @@ router.delete('/:id', authenticate, async (req, res) => {
     const { error } = await supabase
       .from('cars')
       .delete()
-      .eq('id', id)
-      .eq('user_id', req.user.id);
+      .eq('id', id);
 
     if (error) {
       return res.status(404).json({ error: 'Car not found' });
     }
 
     res.json({ message: 'Car deleted successfully' });
+    
   } catch (err) {
+    console.error('DELETE /api/cars/:id error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 module.exports = router;
