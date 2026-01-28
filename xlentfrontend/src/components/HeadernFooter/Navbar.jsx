@@ -329,50 +329,7 @@ const Navbar = ({ theme, toggleTheme, isAuthenticated, onLogout }) => {
           // Save to state, localStorage, or whatever you need
         }}
       />
-      {/* Add CSS for dropdown arrow animation */}
-      <style jsx>{`
-        .rotate-180 {
-          transform: rotate(180deg);
-        }
-        
-        .dropdown-item-custom {
-          padding: 0.75rem 1.5rem !important;
-          color: #333 !important;
-          transition: all 0.2s ease;
-        }
-        
-        .dropdown-item-custom:hover {
-          background-color: #f8f9fa !important;
-          color: #02287c !important;
-        }
-        
-        .dropdown-item-custom.text-danger:hover {
-          background-color: #fee !important;
-          color: #dc3545 !important;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 991.98px) {
-          .navbar-nav-custom {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-          }
-          
-          .nav-button-item {
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-          }
-          
-          .dropdown-menu-custom1 {
-            position: static !important;
-            float: none;
-            width: 100%;
-            margin-top: 0.5rem;
-            box-shadow: none !important;
-            border: 1px solid #dee2e6 !important;
-          }
-        }
-      `}</style>
+    
     </>
   );
 };

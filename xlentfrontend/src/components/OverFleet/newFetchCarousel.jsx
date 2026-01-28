@@ -17,15 +17,6 @@ const NewPropertyCard = () => {
     JSON.parse(localStorage.getItem("favorites")) || []
   );
 
-  function formatINR(value) {
-    if (!value) return "-";
-    return Number(value).toLocaleString("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    });
-  }
-
   // Fetch ALL cars from your backend API
   const fetchAllCarsFromAPI = async () => {
     try {
@@ -67,61 +58,13 @@ const NewPropertyCard = () => {
 
   // Transform API car data to match your UI format
   const transformCarData = (apiCars) => {
-    const carTypes = ["Sedan", "SUV", "Hatchback", "Luxury", "Compact", "MUV"];
-    const locations = ["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Chennai", "Kolkata"];
-    const fuelTypes = ["Petrol", "Diesel", "CNG", "Electric"];
-
-    return apiCars.map((car, index) => ({
-      id: car.id || index,
-      // Use actual data from your database
-      name: car.car_model ? car.car_model.split(' ')[0] : "Car", // Extract brand from car_model
-      model: car.car_model ? car.car_model.split(' ').slice(1).join(' ') : "Model", // Extract model
-      car_number: car.car_number || "N/A",
-      car_model: car.car_model || "Unknown Model",
-      car_location: car.car_location || "Location not specified",
+    return apiCars.map((car) => ({
+      id: car.id,
+      name: car.car_model || "Car",
+      location: car.car_location || "Location not specified",
       photos: car.photos || [],
-      type: carTypes[index % carTypes.length],
-      dailyRate: 1500 + (Math.random() * 1500), // Random price for now
-      location: locations[index % locations.length],
-      seats: 4 + Math.floor(Math.random() * 3),
-      luggage: Math.floor(Math.random() * 3) + 1,
-      transmission: ["Automatic", "Manual"][Math.floor(Math.random() * 2)],
-      fuelType: fuelTypes[Math.floor(Math.random() * fuelTypes.length)],
-      available: true,
-      mileage: `${Math.floor(Math.random() * 10) + 15} kmpl`,
-      features: ["AC", "Bluetooth", "GPS", "Backup Camera", "Airbags", "Power Windows"].slice(0, 3 + Math.floor(Math.random() * 3)),
-      created_at: car.created_at || new Date().toISOString(),
-    }));
-  };
-
-  // Fallback data if API fails
-  const generateFallbackData = () => {
-    const indianCarMakes = [
-      { id: 1, name: "Maruti Suzuki", model: "Swift Dzire" },
-      { id: 2, name: "Hyundai", model: "Creta" },
-      { id: 3, name: "Tata Motors", model: "Nexon" },
-      { id: 4, name: "Mahindra", model: "Scorpio" },
-      { id: 5, name: "Honda", model: "City" },
-      { id: 6, name: "Toyota", model: "Innova" },
-    ];
-    const carTypes = ["Sedan", "SUV", "Hatchback", "Luxury", "Compact", "MUV"];
-    const locations = ["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Chennai", "Kolkata"];
-    const fuelTypes = ["Petrol", "Diesel", "CNG", "Electric"];
-
-    return indianCarMakes.map((make, index) => ({
-      id: make.id,
-      name: make.name,
-      model: make.model,
-      type: carTypes[index % carTypes.length],
-      dailyRate: Math.floor(Math.random() * 3000) + 800,
-      location: locations[index % locations.length],
-      seats: Math.floor(Math.random() * 4) + 4,
-      luggage: Math.floor(Math.random() * 3) + 1,
-      transmission: ["Automatic", "Manual"][Math.floor(Math.random() * 2)],
-      fuelType: fuelTypes[Math.floor(Math.random() * fuelTypes.length)],
-      available: true,
-      mileage: `${Math.floor(Math.random() * 10) + 15} kmpl`,
-      features: ["AC", "Bluetooth", "GPS", "Backup Camera", "Airbags", "Power Windows"].slice(0, 3 + Math.floor(Math.random() * 3)),
+      car_model: car.car_model || "Unknown Model",
+      car_number: car.car_number || "N/A",
     }));
   };
 
@@ -133,20 +76,18 @@ const NewPropertyCard = () => {
         const apiCars = await fetchAllCarsFromAPI();
         
         if (apiCars.length > 0) {
-          console.log(`Successfully fetched ${apiCars.length} cars`);
+          console.log(`Successfully fetched ${apiCars.length} cars from Supabase`);
           const transformed = transformCarData(apiCars);
           setLocalCars(transformed);
           dispatch(setCarsRedux(apiCars)); // Store raw data in Redux
         } else {
-          console.log('No cars from API, using fallback data');
-          const fallback = generateFallbackData();
-          setLocalCars(fallback);
+          console.log('No cars found in Supabase');
+          setLocalCars([]);
           dispatch(setCarsRedux([]));
         }
       } catch (err) {
         console.error('Error in fetchData:', err);
-        const fallback = generateFallbackData();
-        setLocalCars(fallback);
+        setLocalCars([]);
         dispatch(setCarsRedux([]));
       } finally {
         dispatch(setLoadingRedux(false));
@@ -208,11 +149,24 @@ const NewPropertyCard = () => {
         </div>
       );
     } else {
+      // Simple placeholder when no photo
       return (
-        <div className="dummy-car-ui">
-          <div className="dummy-car-icon">🚗</div>
-          <div className="dummy-car-text">{car.name} {car.model}</div>
-          <small className="text-muted">{car.car_number || "Car Number"}</small>
+        <div 
+          className="dummy-car-ui"
+          style={{
+            width: '100%',
+            height: '180px',
+            backgroundColor: '#f8f9fa',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderTopLeftRadius: '8px',
+            borderTopRightRadius: '8px'
+          }}
+        >
+          <div style={{ fontSize: '48px' }}>🚗</div>
+          <div style={{ marginTop: '8px', fontWeight: '500' }}>{car.car_model || car.name}</div>
         </div>
       );
     }
@@ -224,7 +178,7 @@ const NewPropertyCard = () => {
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p className="mt-2">Loading cars...</p>
+        <p className="mt-2">Loading cars from Supabase...</p>
       </div>
     );
   }
@@ -240,33 +194,16 @@ const NewPropertyCard = () => {
         }}> 
           Our Fleet 
         </h2>
-        {/* <div className="d-flex align-items-center">
-          <span className="text-muted small me-3">❤️ Favorites: {favorites.length}</span>
-          <button 
-            className="btn btn-sm btn-outline-primary"
-            onClick={() => {
-              const fetchData = async () => {
-                dispatch(setLoadingRedux(true));
-                const apiCars = await fetchAllCarsFromAPI();
-                if (apiCars.length > 0) {
-                  const transformed = transformCarData(apiCars);
-                  setLocalCars(transformed);
-                  dispatch(setCarsRedux(apiCars));
-                }
-                dispatch(setLoadingRedux(false));
-              };
-              fetchData();
-            }}
-          >
-            🔄 Refresh
-          </button>
-        </div> */}
+        <span className="text-muted small">
+          Showing {localCars.length} car{localCars.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
       {localCars.length === 0 ? (
         <div className="text-center py-5">
-          <p className="text-muted">No cars available yet.</p>
-          <p className="small text-muted">Be the first to add a car!</p>
+          <div className="mb-3" style={{ fontSize: '48px' }}>🚗</div>
+          <h5 className="text-muted">No cars available yet</h5>
+          <p className="small text-muted">Check back later or contact support</p>
         </div>
       ) : (
         <div className="row g-3">
@@ -283,7 +220,14 @@ const NewPropertyCard = () => {
                     }
                   } 
                 })}
-                style={{ cursor: "pointer" }}
+                style={{ 
+                  cursor: "pointer",
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 {/* Favorite Button */}
                 <div
@@ -292,38 +236,31 @@ const NewPropertyCard = () => {
                     e.stopPropagation();
                     toggleFavorite(car.id);
                   }}
-                  style={{ cursor: "pointer", zIndex: 1 }}
+                  style={{ 
+                    cursor: "pointer", 
+                    zIndex: 1,
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: '0 8px 0 8px'
+                  }}
                 >
                   {favorites.includes(car.id) ? "❤️" : "🤍"}
                 </div>
 
-                {/* Car Image or Dummy UI */}
+                {/* Car Image */}
                 {renderCarImage(car)}
 
-                {/* Car Details */}
+                {/* Car Details - Only name and location */}
                 <div className="p-3">
-                  <p className="small text-primary fw-semibold mb-1">{car.type}</p>
-                  <h6 className="fw-bold mb-1">{car.car_model || `${car.name} ${car.model}`}</h6>
-                  <p className="small text-muted mb-1">{car.car_number || "N/A"}</p>
-                  <p className="fw-semibold mb-1">{formatINR(car.dailyRate)}/day</p>
-                  <p className="fw-semibold mb-1">{car.location}</p>
-                  
-                  
-
-                  <div className="features-list">
-                    {car.features.slice(0, 3).map((feature, index) => (
-                      <span key={index} className="feature-tag small">{feature}</span>
-                    ))}
-                    {car.features.length > 3 && (
-                      <span className="feature-tag small">+{car.features.length - 3} more</span>
-                    )}
-                  </div>
-                  
-                  {/* Show photo count if available */}
-                  {car.photos && car.photos.length > 0 && (
-                    <div className="mt-2 small text-muted">
-                      📸 {car.photos.length} photo{car.photos.length !== 1 ? 's' : ''}
-                    </div>
+                  <h6 className="fw-bold mb-1" style={{ color: '#333' }}>
+                    {car.car_model || car.name}
+                  </h6>
+                  <p className="text-muted mb-2" style={{ fontSize: '14px' }}>
+                    📍 {car.location}
+                  </p>
+                  {car.car_number && (
+                    <p className="small text-muted mb-0" style={{ fontSize: '12px' }}>
+                      🚗 {car.car_number}
+                    </p>
                   )}
                 </div>
               </div>
@@ -335,4 +272,4 @@ const NewPropertyCard = () => {
   );
 };
 
-export default NewPropertyCard; 
+export default NewPropertyCard;
