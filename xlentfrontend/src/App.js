@@ -15,6 +15,7 @@ import AboutPage from "./components/AboutPage/AboutPage";
 import TermsConditionsPage from "./components/TermsandConditions/TermsConditionsPage";
 import AddCar from "./components/AddCar/AddCar";
 import BookingPage from "./components/Booking/BookingPage";
+import Qrcode from "./components/Booking/Qrcode";
 const NewPropertyCard = lazy(() => import("./components/OverFleet/newFetchCarousel"));
 const Gallery = lazy(() => import("./components/CustomerGallery/Gallery"));
 const Testimonials = lazy(() => import("./components/Testimonials/Testimonials"));
@@ -106,6 +107,7 @@ function AppRoutes({ theme, toggleTheme }) {
           <Route path="/deals" element={<SpecialDeals />} />
           <Route path="/terms" element={<TermsConditionsPage />} />
             <Route path="/book/:carId" element={<BookingPage />} />
+            <Route path="/Payment" element={<Qrcode/>}/>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
