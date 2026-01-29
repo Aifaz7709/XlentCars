@@ -212,4 +212,77 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+// ========== UPDATE CAR (NO AUTH REQUIRED) ==========
+router.put('/:id', uploadMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const car_model = req.body.car_model?.trim();
+    const car_number = req.body.car_number?.trim();
+    const car_location = req.body.car_location?.trim();
+    const newPhotos = req.files || [];
+
+    // 1. Fetch current car data to get existing photos
+    const { data: currentCar, error: fetchError } = await supabase
+      .from('cars')
+      .select('photos')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !currentCar) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+
+    // 2. Upload new photos (if any)
+    const newPhotoUrls = [];
+    for (const file of newPhotos) {
+      const fileExt = path.extname(file.originalname);
+      const fileName = `cars/${Date.now()}_${Math.random().toString(36).substr(2, 9)}${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('car-photos')
+        .upload(fileName, file.buffer, {
+          contentType: file.mimetype,
+          upsert: true
+        });
+
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('car-photos')
+          .getPublicUrl(fileName);
+        newPhotoUrls.push(publicUrl);
+      }
+    }
+
+    // 3. Combine old photos with new photos 
+    // (Note: If your frontend sends ALL photos including old ones, adjust this logic)
+    const updatedPhotos = [...(currentCar.photos || []), ...newPhotoUrls];
+
+    // 4. Update Database
+    const { data, error: updateError } = await supabase
+      .from('cars')
+      .update({
+        car_model,
+        car_number,
+        car_location,
+        photos: updatedPhotos,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (updateError) {
+      return res.status(400).json({ error: updateError.message });
+    }
+
+    res.json({
+      message: 'Car updated successfully',
+      car: data
+    });
+
+  } catch (err) {
+    console.error('Update car error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 module.exports = router;

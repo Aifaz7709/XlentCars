@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Plus, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, Plus, Trash2, AlertCircle, CheckCircle, Pencil } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { addCar, removeCar, setCars } from '../Redux/Slices/carSlice';
 import './AddCar.css';
@@ -17,7 +17,8 @@ const AddCar = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [cars, setLocalCars] = useState([]);
   const [loadingCars, setLoadingCars] = useState(false);
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [editCarId, setEditCarId] = useState(null);
   const fetchCars = async () => {
     try {
       setLoadingCars(true);
@@ -146,9 +147,12 @@ const refreshToken = async () => {
         throw new Error('Please log in to add a car');
       }
   
-      const apiUrl = process.env.REACT_APP_API_BASE_URL 
-        ? `${process.env.REACT_APP_API_BASE_URL}/api/cars`
-        : 'https://xlent-production.up.railway.app/api/cars';
+      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'https://xlent-production.up.railway.app';
+      const apiUrl = isEditing 
+        ? `${baseUrl}/api/cars/${editCarId}` 
+        : `${baseUrl}/api/cars`;
+      
+      const method = isEditing ? 'PUT' : 'POST';
   
       const sendRequest = async (currentToken) => {
         const formDataToSend = new FormData();
@@ -160,7 +164,7 @@ const refreshToken = async () => {
         });
   
         const response = await fetch(apiUrl, {
-          method: 'POST',
+          method: method,
           headers: {
             'Authorization': `Bearer ${currentToken}`
           },
@@ -214,6 +218,29 @@ const refreshToken = async () => {
     }
   };  
 
+
+  const handleEditClick = (car) => {
+    setIsEditing(true);
+    setEditCarId(car.id);
+    setFormData({
+      car_model: car.car_model,
+      car_number: car.car_number,
+      car_location: car.car_location || ''
+    });
+    // Clear previous file selections but keep current previews if you want
+    setPhotoFiles([]); 
+    setPhotoPreviews(car.photos || []);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  // Add a cancel function
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setEditCarId(null);
+    setFormData({ car_model: '', car_number: '', car_location: '' });
+    setPhotoFiles([]);
+    setPhotoPreviews([]);
+  };
   const deleteCar = async (carId) => {
     if (!window.confirm('Are you sure you want to delete this car?')) return;
 
@@ -392,23 +419,17 @@ const refreshToken = async () => {
                   </div>
 
                   {/* Submit Button */}
-                  <button
-                    type="submit"
-                    className="btn btn-primary w-100 py-2 fw-semibold"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Adding Car...
-                      </>
-                    ) : (
-                      <>
-                        <Plus size={18} className="me-2" />
-                        Add
-                      </>
-                    )}
-                  </button>
+                  <div className="d-flex gap-2">
+  <button type="submit" className="btn btn-primary flex-grow-1 py-2 fw-semibold" disabled={isLoading}>
+    {isLoading ? 'Processing...' : isEditing ? 'Update Car' : 'Add Car'}
+  </button>
+  
+  {isEditing && (
+    <button type="button" className="btn btn-secondary py-2" onClick={cancelEdit}>
+      Cancel
+    </button>
+  )}
+</div>
                 </form>
               </div>
             </div>
@@ -484,13 +505,20 @@ const refreshToken = async () => {
                           </div>
                         )}
                         
-                        <button
-                          className="btn-danger"
-                          onClick={() => deleteCar(car.id)}
-                        >
-                          <Trash2 size={14}  />
-                      
-                        </button>
+                        <div className="d-flex gap-2 end-0">
+  <button
+    className="btn btn-sm btn-outline-primary"
+    onClick={() => handleEditClick(car)}
+  >
+    <Pencil size={14} /> {/* Or use an Edit/Pencil icon from Lucide */}
+  </button>
+  <button
+    className="btn btn-sm btn-outline-danger"
+    onClick={() => deleteCar(car.id)}
+  >
+    <Trash2 size={14} />
+  </button>
+</div>
                       </div>
                     ))}
                   </div>
