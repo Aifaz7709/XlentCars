@@ -225,6 +225,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 // ========== UPDATE CAR (NO AUTH REQUIRED) ==========
+// ========== UPDATE CAR ==========
 router.put('/:id', uploadMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -233,27 +234,30 @@ router.put('/:id', uploadMiddleware, async (req, res) => {
     const car_location = req.body.car_location?.trim();
     const newPhotos = req.files || [];
 
-    // 1. Fetch current car data to get existing photos
+    // 1. Check for duplicate car number (excluding current car)
     const { data: duplicateCar } = await supabase
-    .from('cars')
-    .select('id')
-    .eq('car_number', car_number)
-    .neq('id', id) // <--- CRITICAL: Ignore current record
-    .maybeSingle();
+      .from('cars')
+      .select('id')
+      .eq('car_number', car_number)
+      .neq('id', id)
+      .maybeSingle();
 
-  if (duplicateCar) {
-    return res.status(400).json({ error: 'Car number already exists for another vehicle' });
-  }
-  const { data: currentCar, error: fetchError } = await supabase
-  .from('cars')
-  .select('photos')
-  .eq('id', id)
-  .single();
+    if (duplicateCar) {
+      return res.status(400).json({ error: 'Car number already exists for another vehicle' });
+    }
 
-if (fetchError || !currentCar) {
-  return res.status(404).json({ error: 'Car not found' });
-}
-    // 2. Upload new photos (if any)
+    // 2. Fetch current car data
+    const { data: currentCar, error: fetchError } = await supabase
+      .from('cars')
+      .select('photos')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !currentCar) {
+      return res.status(404).json({ error: 'Car not found' });
+    }
+
+    // 3. Upload new photos (if any)
     const newPhotoUrls = [];
     for (const file of newPhotos) {
       const fileExt = path.extname(file.originalname);
@@ -274,27 +278,32 @@ if (fetchError || !currentCar) {
       }
     }
 
-   // Inside router.put('/:id'...)
+    // 4. Combine old photos with new photos safely
+    // Start with existing photos
+    let updatedPhotos = Array.isArray(currentCar.photos) ? [...currentCar.photos] : [];
+    
+    // Add new photos
+    updatedPhotos = [...updatedPhotos, ...newPhotoUrls];
+    
+    // Limit to 5 photos total (matches your Multer limit)
+    updatedPhotos = updatedPhotos.slice(0, 5);
 
-// 3. Combine old photos with new photos safely
-let updatedPhotos = Array.isArray(currentCar.photos) ? [...currentCar.photos] : [];
+    // 5. Update Database
+    const updateData = {};
+    
+    // Only add fields if they're provided
+    if (car_model) updateData.car_model = car_model;
+    if (car_number) updateData.car_number = car_number;
+    if (car_location) updateData.car_location = car_location;
+    updateData.photos = updatedPhotos;
+    updateData.updated_at = new Date().toISOString();
 
-// Limit to 5 photos total (optional, but matches your Multer limit)
-updatedPhotos = updatedPhotos.slice(0, 5);
-
-// 4. Update Database
-const { data, error: updateError } = await supabase
-  .from('cars')
-  .update({
-    car_model,
-    car_number,
-    car_location,
-    photos: updatedPhotos, // Use the sanitized array
-    updated_at: new Date().toISOString(),
-  })
-  .eq('id', id)
-  .select()
-  .single();
+    const { data, error: updateError } = await supabase
+      .from('cars')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
 
     if (updateError) {
       return res.status(400).json({ error: updateError.message });
@@ -307,6 +316,18 @@ const { data, error: updateError } = await supabase
 
   } catch (err) {
     console.error('Update car error:', err);
+    
+    // Handle multer errors
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Max 5MB per file' });
+      }
+      if (err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({ error: 'Maximum 5 photos allowed' });
+      }
+      return res.status(400).json({ error: `File upload error: ${err.message}` });
+    }
+    
     res.status(500).json({ error: 'Internal server error' });
   }
 });

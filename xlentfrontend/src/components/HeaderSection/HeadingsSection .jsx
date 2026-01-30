@@ -92,6 +92,14 @@ const HeadingsSection = () => {
     fontWeight:'550'
   }}
 >
+
+<span style={{ 
+    color: "#fff", 
+    fontSize: 14, 
+    fontFamily: "emoji"
+  }}>
+    Starting from 
+  </span> 
   <span style={{ 
     color: "#fff", 
     fontSize: "clamp(30px, 10vw, 80px)", 
@@ -99,7 +107,7 @@ const HeadingsSection = () => {
   }}>
     ₹
   </span> 
-  500/Day
+  599/Day
 </div>
 
 <div className="content-wrapper">

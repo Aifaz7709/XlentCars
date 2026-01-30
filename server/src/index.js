@@ -15,8 +15,14 @@ app.use(cors({
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Content-Disposition', // Often needed for file uploads
+    'X-Requested-With',
+    'Accept'
+  ],
+  exposedHeaders: ['Content-Disposition']
 }));
 
 app.options('*', cors());
