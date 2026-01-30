@@ -65,38 +65,38 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
   };
 
   // Get current location
-  const handleGetCurrentLocation = () => {
-    setUseGeolocation(true);
+  // const handleGetCurrentLocation = () => {
+  //   setUseGeolocation(true);
     
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
+  //   if (navigator.geolocation) {
+  //     navigator.geolocation.getCurrentPosition(
+  //       (position) => {
+  //         const { latitude, longitude } = position.coords;
           
-          // Here you would typically reverse geocode to get city name
-          // For now, we'll show a message and find the nearest city
-          const nearestCity = findNearestCity(latitude, longitude);
+  //         // Here you would typically reverse geocode to get city name
+  //         // For now, we'll show a message and find the nearest city
+  //         const nearestCity = findNearestCity(latitude, longitude);
           
-          if (nearestCity) {
-            handleCitySelect(nearestCity);
-          } else {
-            alert("We don't service your current location yet. Please select from available cities.");
-          }
+  //         if (nearestCity) {
+  //           handleCitySelect(nearestCity);
+  //         } else {
+  //           alert("We don't service your current location yet. Please select from available cities.");
+  //         }
           
-          setUseGeolocation(false);
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          alert('Unable to get your location. Please enable location services.');
-          setUseGeolocation(false);
-        },
-        { timeout: 10000 }
-      );
-    } else {
-      alert('Geolocation is not supported by your browser.');
-      setUseGeolocation(false);
-    }
-  };
+  //         setUseGeolocation(false);
+  //       },
+  //       (error) => {
+  //         console.error('Error getting location:', error);
+  //         alert('Unable to get your location. Please enable location services.');
+  //         setUseGeolocation(false);
+  //       },
+  //       { timeout: 10000 }
+  //     );
+  //   } else {
+  //     alert('Geolocation is not supported by your browser.');
+  //     setUseGeolocation(false);
+  //   }
+  // };
 
   // Mock function to find nearest city (in real app, use geocoding API)
   const findNearestCity = (lat, lng) => {
@@ -147,7 +147,7 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
         {/* Scrollable Content Area */}
         <div className="modal-scrollable-content">
           {/* Current Location Button */}
-          <div className="current-location-section">
+          {/* <div className="current-location-section">
             <button 
               className="current-location-btn"
               onClick={handleGetCurrentLocation}
@@ -156,13 +156,12 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
               <Navigation size={18} />
               <span>{useGeolocation ? 'Detecting location...' : 'Use my current location'}</span>
             </button>
-          </div>
+          </div> */}
 
          
           {/* Popular Cities */}
           {!searchQuery && (
             <div className="section">
-              <h3 className="section-title">Popular Cities</h3>
               <div className="popular-cities-grid">
                 {popularCities.map((city) => (
                   <div
@@ -179,6 +178,8 @@ const LocationModal = ({ isOpen, onClose, onSelectLocation }) => {
                   </div>
                 ))}
               </div>
+              <h3 className="section-title" style={{marginTop:'5px', paddingTop:'5px'}}>🎉 Get Ready! More Cities Coming Soon</h3>
+
             </div>
           )}
 

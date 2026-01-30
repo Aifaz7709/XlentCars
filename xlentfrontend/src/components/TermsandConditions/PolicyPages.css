@@ -22,7 +22,7 @@
   }
   
   .nav-link:hover {
-    background-color: #f0f7ff;
+    background-color: transparent;
     border-left-color: #0d6efd;
     transform: translateX(5px);
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setCars as setCarsRedux, setLoading as setLoadingRedux } from "../Redux/Slices/carSlice";
@@ -16,15 +16,25 @@ const NewPropertyCard = () => {
   const [favorites, setFavorites] = useState(() =>
     JSON.parse(localStorage.getItem("favorites")) || []
   );
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [itemsPerSlide, setItemsPerSlide] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  const carouselRef = useRef(null);
+  const autoPlayTimerRef = useRef(null);
+  const resizeTimerRef = useRef(null);
 
-  // Fetch ALL cars from your backend API
+  const minSwipeDistance = 50;
+
+  // Fetch cars from API
   const fetchAllCarsFromAPI = async () => {
     try {
       const apiUrl = process.env.REACT_APP_API_BASE_URL 
         ? `${process.env.REACT_APP_API_BASE_URL}/api/cars`
         : 'https://xlent-production.up.railway.app/api/cars';
-      
-      console.log('Fetching cars from:', apiUrl);
       
       const res = await fetch(apiUrl, {
         headers: {
@@ -39,13 +49,11 @@ const NewPropertyCard = () => {
       }
       
       const data = await res.json();
-      console.log('API Response:', data);
       
-      // Handle both response formats
       if (data.cars && Array.isArray(data.cars)) {
-        return data.cars; // { cars: [...] } format
+        return data.cars;
       } else if (Array.isArray(data)) {
-        return data; // Direct array format
+        return data;
       } else {
         console.error('Unexpected response format:', data);
         return [];
@@ -56,7 +64,6 @@ const NewPropertyCard = () => {
     }
   };
 
-  // Transform API car data to match your UI format
   const transformCarData = (apiCars) => {
     return apiCars.map((car) => ({
       id: car.id,
@@ -65,10 +72,33 @@ const NewPropertyCard = () => {
       photos: car.photos || [],
       car_model: car.car_model || "Unknown Model",
       car_number: car.car_number || "N/A",
+      // price: car.price || Math.floor(Math.random() * 200) + 50,
+      // fuel_type: car.fuel_type || "Petrol",
+      // transmission: car.transmission || "Automatic",
+      // seats: car.seats || 5,
+      // year: car.year ,
+      // rating: car.rating || (4 + Math.random()).toFixed(1),
+      // mileage: car.mileage || `${Math.floor(Math.random() * 50) + 10} km/l`
     }));
   };
 
-  // Fetch cars on component mount
+  // Handle responsive items per slide
+  const updateItemsPerSlide = useCallback(() => {
+    const width = window.innerWidth;
+    setIsMobile(width < 768);
+    
+    if (width < 480) {
+      setItemsPerSlide(1);
+    } else if (width < 768) {
+      setItemsPerSlide(2);
+    } else if (width < 1024) {
+      setItemsPerSlide(3);
+    } else {
+      setItemsPerSlide(4);
+    }
+  }, []);
+
+  // Fetch data on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -76,12 +106,10 @@ const NewPropertyCard = () => {
         const apiCars = await fetchAllCarsFromAPI();
         
         if (apiCars.length > 0) {
-          console.log(`Successfully fetched ${apiCars.length} cars from Supabase`);
           const transformed = transformCarData(apiCars);
           setLocalCars(transformed);
-          dispatch(setCarsRedux(apiCars)); // Store raw data in Redux
+          dispatch(setCarsRedux(apiCars));
         } else {
-          console.log('No cars found in Supabase');
           setLocalCars([]);
           dispatch(setCarsRedux([]));
         }
@@ -95,78 +123,136 @@ const NewPropertyCard = () => {
       }
     };
 
-    // Only fetch if we haven't already fetched or if Redux is empty
     if (!hasFetched || reduxCars.length === 0) {
       fetchData();
     } else if (reduxCars.length > 0 && localCars.length === 0) {
-      // If Redux has data but local doesn't, transform it
       const transformed = transformCarData(reduxCars);
       setLocalCars(transformed);
     }
-  }, [dispatch, hasFetched, reduxCars.length, localCars.length]);
 
-  // Auto-refresh every 30 seconds to get new cars
+    // Setup responsive handling
+    updateItemsPerSlide();
+    window.addEventListener('resize', updateItemsPerSlide);
+
+    return () => {
+      window.removeEventListener('resize', updateItemsPerSlide);
+    };
+  }, [dispatch, hasFetched, reduxCars.length, localCars.length, updateItemsPerSlide]);
+
+  const totalSlides = Math.max(1, Math.ceil(localCars.length / itemsPerSlide));
+
+  // Carousel navigation functions
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => {
+      if (prev >= totalSlides - 1) {
+        // If at last slide, go back to first with smooth transition
+        setTimeout(() => {
+          setCurrentSlide(0);
+        }, 50);
+        return 0;
+      }
+      return prev + 1;
+    });
+  }, [totalSlides]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => {
+      if (prev <= 0) {
+        // If at first slide, go to last
+        return totalSlides - 1;
+      }
+      return prev - 1;
+    });
+  }, [totalSlides]);
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  // Auto-play functionality
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      console.log('Auto-refreshing car list...');
-      const fetchData = async () => {
-        const apiCars = await fetchAllCarsFromAPI();
-        if (apiCars.length > 0) {
-          const transformed = transformCarData(apiCars);
-          setLocalCars(transformed);
-          dispatch(setCarsRedux(apiCars));
-        }
-      };
-      fetchData();
-    }, 30000); // 30 seconds
+    if (!isAutoPlaying || localCars.length === 0) return;
 
-    return () => clearInterval(intervalId);
-  }, [dispatch]);
+    autoPlayTimerRef.current = setInterval(() => {
+      nextSlide();
+    }, 4000); // 4 seconds for auto-play
 
-  function toggleFavorite(id) {
-    const updated = favorites.includes(id) ? favorites.filter((f) => f !== id) : [...favorites, id];
+    return () => {
+      if (autoPlayTimerRef.current) {
+        clearInterval(autoPlayTimerRef.current);
+      }
+    };
+  }, [isAutoPlaying, nextSlide, localCars.length]);
+
+  // Toggle auto-play
+  const toggleAutoPlay = () => {
+    setIsAutoPlaying(!isAutoPlaying);
+  };
+
+  // Touch events for mobile swipe
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+  };
+
+  // Pause auto-play on hover for desktop
+  const handleMouseEnter = () => {
+    if (isAutoPlaying && !isMobile) {
+      setIsAutoPlaying(false);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isAutoPlaying && !isMobile) {
+      setIsAutoPlaying(true);
+    }
+  };
+
+  // Toggle favorite
+  const toggleFavorite = (id, e) => {
+    e.stopPropagation();
+    const updated = favorites.includes(id) 
+      ? favorites.filter((f) => f !== id) 
+      : [...favorites, id];
     setFavorites(updated);
     localStorage.setItem("favorites", JSON.stringify(updated));
-  }
+  };
 
-  // Show car photos if available
   const renderCarImage = (car) => {
     if (car.photos && car.photos.length > 0) {
       return (
-        <div className="car-photo-container">
+        <div className="car-image-container">
           <img 
             src={car.photos[0]} 
             alt={`${car.car_model || car.name}`}
-            className="car-photo"
-            style={{
-              width: '100%',
-              height: '180px',
-              objectFit: 'cover',
-              borderTopLeftRadius: '8px',
-              borderTopRightRadius: '8px'
-            }}
+            className="car-image"
+            loading="lazy"
           />
+          <div className="car-badge">{car.year}</div>
         </div>
       );
     } else {
-      // Simple placeholder when no photo
       return (
-        <div 
-          className="dummy-car-ui"
-          style={{
-            width: '100%',
-            height: '180px',
-            backgroundColor: '#f8f9fa',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderTopLeftRadius: '8px',
-            borderTopRightRadius: '8px'
-          }}
-        >
-          <div style={{ fontSize: '48px' }}>🚗</div>
-          <div style={{ marginTop: '8px', fontWeight: '500' }}>{car.car_model || car.name}</div>
+        <div className="car-image-placeholder">
+          <div className="car-icon">🚗</div>
+          <div className="car-model">{car.car_model || car.name}</div>
         </div>
       );
     }
@@ -174,99 +260,134 @@ const NewPropertyCard = () => {
 
   if (reduxLoading && localCars.length === 0) {
     return (
-      <div className="container py-4 text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-2">Loading cars from Supabase...</p>
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <p>Loading cars...</p>
       </div>
     );
   }
 
   return (
-    <div className="container1 py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="display-6 mb-0" data-aos="fade-down" style={{ 
-          cursor: 'pointer',
-          color: 'rgb(2, 40, 124)',
-          marginRight: '1.5rem',
-          fontWeight: '600'
-        }}> 
-          Our Fleet 
-        </h2>
-        <span className="text-muted small">
-          Showing {localCars.length} car{localCars.length !== 1 ? 's' : ''}
-        </span>
+    <div className="carousel-container1">
+      <div className="carousel-header">
+        <div>
+          <h2 className="carousel-title">Our Premium Fleet</h2>
+          <p className="carousel-subtitle">Explore our curated collection of vehicles</p>
+        </div>
+        <div className="carousel-controls-group">
+
+          <div className="carousel-controls">
+            <button 
+              className="carousel-btn prev-btn"
+              onClick={prevSlide}
+              aria-label="Previous slide"
+            >
+              ←
+            </button>
+            <button 
+              className="carousel-btn next-btn"
+              onClick={nextSlide}
+              aria-label="Next slide"
+            >
+              →
+            </button>
+          </div>
+        </div>
       </div>
 
       {localCars.length === 0 ? (
-        <div className="text-center py-5">
-          <div className="mb-3" style={{ fontSize: '48px' }}>🚗</div>
-          <h5 className="text-muted">No cars available yet</h5>
-          <p className="small text-muted">Check back later or contact support</p>
+        <div className="empty-state">
+          <div className="empty-icon">🚗</div>
+          <h3>No cars available</h3>
+          <p>Check back later for new additions to our fleet</p>
         </div>
       ) : (
-        <div className="row g-3">
-          {localCars.map((car) => (
-            <div className="col-12 col-sm-6 col-md-4 col-lg-3" key={car.id}>
-              <div
-                className="property-card shadow-sm position-relative"
-                onClick={() => navigate(`/book/${car.id}`, { 
-                  state: { 
-                    car: {
-                      ...car,
-                      // Pass the original car data for booking
-                      originalData: reduxCars.find(c => c.id === car.id) || car
-                    }
-                  } 
-                })}
-                style={{ 
-                  cursor: "pointer",
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  transition: 'transform 0.2s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                {/* Favorite Button */}
-                <div
-                  className="favorite-btn position-absolute top-0 end-0 p-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(car.id);
+        <>
+          <div 
+            className="carousel-wrapper"
+            ref={carouselRef}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div 
+              className="carousel-track"
+              style={{
+                transform: `translateX(-${currentSlide * (100 / itemsPerSlide)}%)`,
+             
+              }}
+            >
+              {localCars.map((car) => (
+                <div 
+                  key={car.id}
+                  className="car-card"
+                  style={{
+                    width: `${100 / itemsPerSlide}%`
                   }}
-                  style={{ 
-                    cursor: "pointer", 
-                    zIndex: 1,
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    borderRadius: '0 8px 0 8px'
-                  }}
+                  onClick={() => navigate(`/book/${car.id}`, { 
+                    state: { 
+                      car: {
+                        ...car,
+                         originalData: reduxCars.find(c => c.id === car.id) || car
+                      }
+                    } 
+                  })}
                 >
-                  {favorites.includes(car.id) ? "❤️" : "🤍"}
-                </div>
+                  <div className="card-inner">
+                    <button 
+                      className={`favorite-btn ${favorites.includes(car.id) ? 'active' : ''}`}
+                      onClick={(e) => toggleFavorite(car.id, e)}
+                      aria-label={favorites.includes(car.id) ? "Remove from favorites" : "Add to favorites"}
+                    >
+                      {favorites.includes(car.id) ? '❤️' : '🤍'}
+                    </button>
 
-                {/* Car Image */}
-                {renderCarImage(car)}
+                    {renderCarImage(car)}
 
-                {/* Car Details - Only name and location */}
-                <div className="p-3">
-                  <h6 className="fw-bold mb-1" style={{ color: '#333' }}>
-                    {car.car_model || car.name}
-                  </h6>
-                  <p className="text-muted mb-2" style={{ fontSize: '14px' }}>
-                    📍 {car.location}
-                  </p>
-                  {car.car_number && (
-                    <p className="small text-muted mb-0" style={{ fontSize: '12px' }}>
-                      🚗 {car.car_number}
-                    </p>
-                  )}
+                    <div className="car-details">
+                      <div className="car-header">
+                        <h3 className="car-name">{car.car_model || car.name}</h3>
+                        {/* <div className="car-price">${car.price}<span>/day</span></div> */}
+                      </div>
+                      
+                      {/* <div className="car-rating">
+                        <span className="stars">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <span key={i} className={i < Math.floor(car.rating) ? 'star-filled' : 'star-empty'}>
+                              ★
+                            </span>
+                          ))}
+                        </span>
+                        <span className="rating-text">{car.rating}</span>
+                      </div> */}
+
+                 
+
+                      <div className="car-location">
+                        <span className="location-icon">📍</span>
+                        <span className="location-text">{car.location}</span>
+                      </div>
+
+                      {/* <div className="car-mileage">
+                        <span className="mileage-text">Mileage: {car.mileage}</span>
+                      </div> */}
+
+                      <button className="book-btn">
+                        Book Now
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+
+       
+
+       
+        </>
       )}
     </div>
   );

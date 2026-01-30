@@ -1,162 +1,637 @@
-
-/* Main Card */
-.property-card {
-  border-radius: 12px;
+/* Carousel Container */
+.carousel-container1 {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 1rem;
+  position: relative;
   overflow: hidden;
-  background: #ffffff; 
+}
+
+/* Header */
+.carousel-header {
   display: flex;
-  border: 1px solid rgb(247, 247, 247);
-  flex-direction: column;
-  height: 100%;
-  transition: 0.25s ease;
-  cursor: pointer;
-  box-shadow: 2px 4px 8px rgba(0,0,0,0.1);
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.property-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(7, 4, 151, 0.12);
-}
-
-/* Property Image */
-.property-img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  background-color: #f5f5f5;
-  display: block;
-}
-
-@media (min-width: 576px) {
-  .property-img {
-    height: 180px;
-  }
-}
-
-@media (min-width: 768px) {
-  .property-img {
-    height: 200px;
-  }
-}
-
-/* Favorite Heart Button */
-.favorite-btn {
-  background: rgba(255,255,255,0.9);
-  border-radius: 50%;
-  padding: 8px 10px;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
-  font-size: 16px;
-  transition: 0.2s;
-  border: none;
-}
-
-.favorite-btn:hover {
-  background: #fff;
-  transform: scale(1.1);
-}
-
-/* Badges */
-.badge-chip {
-  font-size: clamp(0.65rem, 1.5vw, 0.8rem);
-  padding: 4px 8px;
-  border-radius: 6px;
-  display: inline-block;
-}
-
-/* Property Info Section */
-.property-info {
-  padding: 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 576px) {
-  .property-info {
-    padding: 15px;
-  }
-}
-
-@media (min-width: 768px) {
-  .property-info {
-    padding: 18px;
-  }
-}
-
-.property-price {
-  font-size: clamp(1rem, 3vw, 1.3rem);
+.carousel-title {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
   font-weight: 700;
-  color: #002699;
-  margin-bottom: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
 }
 
-.property-title {
-  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
-
-.property-location {
-  font-size: clamp(0.8rem, 2vw, 0.95rem);
+.carousel-subtitle {
   color: #666;
+  font-size: clamp(0.875rem, 2vw, 1rem);
+}
+
+/* Controls Group */
+.carousel-controls-group {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-
-.property-features {
-  display: flex;
-  gap: 10px;
-  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+  gap: 1rem;
   flex-wrap: wrap;
-  margin-top: auto;
 }
 
-.shadow-sm {
-  box-shadow: var(--bs-box-shadow-sm) !important;
+.auto-play-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 50px;
 }
 
-/* Responsive Grid Container */
-.properties-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
+.auto-play-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
-@media (min-width: 576px) {
-  .properties-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+.auto-play-btn.active {
+  background: #ef4444;
+}
+
+.auto-play-text {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.carousel-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carousel-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+  font-weight: bold;
+  touch-action: manipulation; /* Prevent double-tap zoom */
+}
+
+.carousel-btn:hover {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  transform: translateY(-2px);
+}
+
+.carousel-btn:active {
+  transform: scale(0.95);
+}
+
+/* Carousel Wrapper */
+.carousel-wrapper {
+  overflow: hidden;
+  border-radius: 16px;
+  position: relative;
+  margin: 0 -0.5rem;
+  padding: 0.5rem;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  width: 100%;
+  will-change: transform;
+  flex-wrap: nowrap;
+}
+
+/* Car Card */
+.car-card {
+  flex: 0 0 auto;
+  padding: 0.25rem;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.card-inner {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  height: 100%;
+  position: relative;
+  border: 1px solid #f1f5f9;
+  margin: 0 0.25rem;
+}
+
+.card-inner:active {
+  transform: scale(0.98);
+}
+
+/* Image Styles */
+.car-image-container {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.car-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.car-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.car-image-placeholder {
+  height: 180px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.car-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.car-model {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+/* Favorite Button */
+.favorite-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #94a3b8;
+  z-index: 10;
+  font-size: 1.25rem;
+  touch-action: manipulation;
+}
+
+.favorite-btn.active {
+  color: #ef4444;
+}
+
+.favorite-btn:active {
+  transform: scale(0.9);
+}
+
+/* Car Details */
+.car-details {
+  padding: 1rem;
+}
+
+.car-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+
+.car-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+  line-height: 1.2;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.car-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #3b82f6;
+  white-space: nowrap;
+}
+
+.car-price span {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.car-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.stars {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.star-filled {
+  color: #fbbf24;
+}
+
+.star-empty {
+  color: #e2e8f0;
+}
+
+.rating-text {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.car-specs {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.spec-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #4a5568;
+  background: #f8fafc;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.spec-icon {
+  font-size: 0.875rem;
+}
+
+.car-location {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.location-icon {
+  color: #ef4444;
+  font-size: 0.875rem;
+}
+
+.location-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.car-mileage {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  padding: 0.25rem 0.5rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+/* Book Button */
+.book-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.book-btn:active {
+  transform: scale(0.98);
+}
+
+/* Dots Indicator */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #cbd5e0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+  touch-action: manipulation;
+}
+
+.carousel-dot.active {
+  background: #3b82f6;
+  transform: scale(1.2);
+}
+
+.carousel-dot:active {
+  transform: scale(0.9);
+}
+
+/* Status Bar */
+.carousel-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.slide-count, .car-count {
+  white-space: nowrap;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (min-width: 768px) {
-  .properties-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 480px) {
+  .carousel-container {
+    padding: 0.75rem;
+  }
+  
+  .carousel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .carousel-controls-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .carousel-wrapper {
+    margin: 0 -0.25rem;
+    padding: 0.25rem;
+  }
+  
+  .car-image-container {
+    height: 160px;
+  }
+  
+  .car-image-placeholder {
+    height: 160px;
+  }
+  
+  .car-details {
+    padding: 0.75rem;
+  }
+  
+  .car-specs {
+    gap: 0.5rem;
+  }
+  
+  .spec-item {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
 }
 
-@media (min-width: 992px) {
-  .properties-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
+/* Tablet styles */
+@media (min-width: 481px) and (max-width: 768px) {
+  .carousel-container {
+    padding: 1rem;
+  }
+  
+  .car-image-container {
+    height: 200px;
+  }
+  
+  .car-image-placeholder {
+    height: 200px;
+  }
+  
+  .carousel-wrapper {
+    margin: 0 -0.5rem;
+    padding: 0.5rem;
   }
 }
 
-@media (min-width: 1200px) {
-  .properties-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
+/* Small desktop */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .carousel-container {
+    padding: 1.5rem;
+  }
+  
+  .car-image-container {
+    height: 220px;
+  }
+  
+  .car-image-placeholder {
+    height: 220px;
   }
 }
 
-.container1{
-  max-width: 100%;
-  margin: 10px;
-  padding: 10px;
+/* Large desktop */
+@media (min-width: 1025px) {
+  .carousel-container {
+    padding: 2rem;
+  }
+  
+  .car-image-container {
+    height: 240px;
+  }
+  
+  .car-image-placeholder {
+    height: 240px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .carousel-btn:hover {
+    transform: none;
+    background: white;
+    color: #4a5568;
+    border-color: #e2e8f0;
+  }
+  
+  .favorite-btn:hover {
+    transform: none;
+  }
+  
+  .book-btn:hover {
+    transform: none;
+  }
+  
+  .card-inner:hover {
+    transform: none;
+  }
+}
+
+/* Prevent text selection on mobile */
+.car-card {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Improve touch targets for mobile */
+@media (max-width: 768px) {
+  .carousel-btn,
+  .favorite-btn,
+  .carousel-dot,
+  .book-btn {
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+  }
+}
+/* For mobile - ensure proper width calculation */
+@media (max-width: 480px) {
+  .car-card {
+    width: 100% !important; /* Override inline style for mobile */
+    flex: 0 0 100%;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .car-card {
+    width: 50% !important;
+    flex: 0 0 50%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .car-card {
+    width: 33.333% !important;
+    flex: 0 0 33.333%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .car-card {
+    width: 25% !important;
+    flex: 0 0 25%;
+  }
 }

@@ -102,7 +102,7 @@ const HeadingsSection = () => {
   </span> 
   <span style={{ 
     color: "#fff", 
-    fontSize: "clamp(30px, 10vw, 80px)", 
+    fontSize: "clamp(32px, 10vw, 80px)", 
     fontFamily: "fantasy"
   }}>
     ₹
