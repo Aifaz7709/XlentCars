@@ -22,9 +22,10 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+      callback(null, true);
     } else {
-      return callback(new Error('CORS not allowed'));
+      callback(null, true);
+
     }
   },
   credentials: true,
@@ -38,37 +39,9 @@ app.use(cors({
   exposedHeaders: ['Content-Disposition']
 }));
 
-/* ================================
-   HARD STOP FOR PREFLIGHT (FIX)
-================================ */
-
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-    );
-    res.header(
-      'Access-Control-Allow-Methods',
-      'GET, POST, PUT, PATCH, DELETE'
-    );
-    return res.sendStatus(204);
-  }
-  next();
-});
-
-/* ================================
-   BODY PARSERS
-================================ */
-
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-/* ================================
-   LOGGING
-================================ */
 
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
